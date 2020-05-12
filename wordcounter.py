@@ -13,5 +13,5 @@ else:
         print(f'{w:<25} {c} time' + 's' * (c > 1))
 
 # alternative ways to format the output:
-# print(f'{w:<25} {c} time' + 's' * (c > 1))
-# print('{:<25} {} time'.format(w, c) + 's' * (c > 1))
+# f'{w:<25} {c} time'
+# '{:<25} {} time'.format(w, c)

@@ -27,5 +27,6 @@ else:
     word_column_width = len(max(word_list, key=len))
     for word, count in sorted(word_counter.items()):
         print(f'{word:<{word_column_width}} {count} time' + 's' * (count > 1))
-        # print('{:<25} {} times'.format(word, count))  # alternative
+        # alternative way to format the output:
+        # print('{:<25} {} times'.format(word, count))
     f_handle.close()
