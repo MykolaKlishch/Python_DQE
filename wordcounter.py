@@ -5,11 +5,12 @@ from re import findall
 
 try:
     words = findall(r'\w+', open(input('Filename: ')).read().lower())
-    for w, c in sorted(Counter(words).items()):
-        print(f'{w:<25} {c} time' + 's' * (c > 1))
 except OSError as e:
     print(f'Could not open the file. {e.args[1]}.')
     exit()
+else:
+    for w, c in sorted(Counter(words).items()):
+        print(f'{w:<25} {c} time' + 's' * (c > 1))
 
 # alternative ways to format the output:
 # print(f'{w:<25} {c} time' + 's' * (c > 1))
