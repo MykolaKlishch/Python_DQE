@@ -1,4 +1,5 @@
-"""Tic-tac-toe game simulator.555"""
+"""Tic-tac-toe game simulator"""
+
 
 def _main():
     pass
