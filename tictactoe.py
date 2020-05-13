@@ -1,4 +1,4 @@
-"""Tic-tac-toe game simulator"""
+"""Tic-tac-toe game simulator."""
 
 def _main():
     pass
