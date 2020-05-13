@@ -1,3 +1,5 @@
+"""Tic-tac-toe game simulator"""
+
 def _main():
     pass
 
