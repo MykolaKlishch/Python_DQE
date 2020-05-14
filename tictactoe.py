@@ -5,8 +5,6 @@ Only two-player mode is available here
 
 import re
 
-PLAYERS = ('x', 'o')  # player marks
-
 
 def visualize(board):
     """Prints the current state of game board.
@@ -64,7 +62,7 @@ def game():
     board = [i + 1 for i in range(9)]
     visualize(board)
     for move in range(9):
-        player = PLAYERS[move % 2]
+        player = ('x', 'o')[move % 2]
         board[get_pos(board, player) - 1] = player
         visualize(board)
         if victory(board, player):
