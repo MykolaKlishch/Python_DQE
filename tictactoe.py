@@ -68,7 +68,6 @@ def _main():
                 board[position-1] = player
                 visualize(board)
                 moves_left -= 1
-                print(f'{moves_left} moves left.')
             else:
                 print('Impossible move. Please try again.')
                 continue
