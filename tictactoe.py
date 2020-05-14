@@ -1,5 +1,6 @@
 """Tic-tac-toe game simulator"""
 
+import re
 
 VICTORY_COMBINATIONS = (
     (0, 1, 2), (3, 4, 5), (6, 7, 8),  # horizontal lines
@@ -55,28 +56,24 @@ def _main():
     moves_left = 9
     while moves_left > 0:
         player = PLAYERS[moves_left % 2]
-        try:
-            position = int(input(f'Player {player}: '))
-            if not 1 <= position <= 9:
-                raise ValueError
-        except ValueError:
+        position = input(f'Player {player}: ')
+        if not re.match(r'^[1-9]$', position):
             print('Input should be a single digit '
                   'from 1 to 9. Please try again.')
             continue
+        position = int(position)
+        if move_is_legit(board, position):
+            board[position-1] = player
+            visualize(board)
+            moves_left -= 1
         else:
-            if move_is_legit(board, position):
-                board[position-1] = player
-                visualize(board)
-                moves_left -= 1
-            else:
-                print('Impossible move. Please try again.')
-                continue
-            if victory(board, player):
-                print(f'Player {player} won!')
-                break
-            else:
-                if moves_left == 0:
-                    print('Draw!')
+            print('Impossible move. Please try again.')
+            continue
+        if victory(board, player):
+            print(f'Player {player} won!')
+            break
+        if moves_left == 0:
+            print('Draw!')
 
 
 if __name__ == "__main__":
