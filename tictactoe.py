@@ -2,7 +2,10 @@
 
 import sys
 import re
-from tictactoe_bot import bot
+try:
+    from tictactoe_bot import bot
+except ImportError:
+    pass
 
 MSG_MODE = """Choose game mode:
 1) human vs human
@@ -105,11 +108,11 @@ def initialize():
     :return: dict
     """
     if 'tictactoe_bot' not in sys.modules.keys():
-        print('\ntictactoe_bot.py module has not been imported.\n'
+        print('tictactoe_bot.py module has not been imported.\n'
               'Only human vs human mode is available')
         return {'x': 'human', 'o': 'human'}
     else:
-        print('\ntictactoe_bot has been imported successfully!')
+        print('tictactoe_bot has been imported successfully!')
     game_mode = process_input(MSG_MODE, r'^[123]$', HINT_MODE)
     if game_mode == '3':
         return {'x': 'bot', 'o': 'bot'}
