@@ -45,10 +45,14 @@ FORKS = {
     (6, 0, 2): (1, 3, 4),
 }
 
-THREES = {  # indexes combinations for board list corresponding to:
+LINES = {  # indexes combinations for board list corresponding to:
     (0, 1, 2), (3, 4, 5), (6, 7, 8),  # horizontal lines
     (0, 3, 6), (1, 4, 7), (2, 5, 8),  # vertical lines
     (0, 4, 8), (2, 4, 6)              # diagonals
+}
+
+CORNERS = {  # indexes combinations for board list corresponding to
+    (0, 8), (2, 6),  # opposite corners
 }
 
 
@@ -71,51 +75,88 @@ def initialize_players():
         return human, bot
 
 
+def _select_true_forks(board, forks):
+    """A fork that is not open is not a fork
+    :param board: list
+    :param forks: iterable of tuples
+    :return: set
+    """
+    true_forks = set()
+    for fork in forks:
+        if len(set(board[index] for index in FORKS[fork]) - {'x', 'o'}) > 1:
+            true_forks.add(fork)
+    return true_forks
+
+
+def _complete_combinations(board, combinations, player, s=2, warning=None):
+    """Returns a set of cells that can be marked
+    to complete the combinations (lines or forks).
+    Calling this function with player=opponent
+    returns the combinations that opponent can complete
+    in the next turn - so these combinations can be blocked.
+
+    marks - a set of symbols (players' marks or digits)
+    that are present
+    s - a critical length of marks set. For example:
+    check if the player can complete the line:
+    1) len(marks) == s == 2
+    2) player's mark 'x' is present in the set
+    3) opponent's mark 'o' is absent in the set
+    This means that marks = {'x', some_int}
+    and some_int is the exact position that should
+    be marked to complete the line.
+
+    # warning - don't provoke the opponent
+    # into marking these positions
+
+    :param board: list
+    :param combinations: set of tuples
+    :param player: string
+    :return: set
+    """
+    opponent = 'o' if player == 'x' else 'x'
+    comp_comb = set()
+    for comb in combinations:
+        marks = set(board[index] for index in comb)
+        if len(marks) == s and player in marks and opponent not in marks:
+            if s == 3 and warning:
+                exclude = set()
+                for mark in marks:
+                    if mark in warning:
+                        exclude.update(marks - {mark})
+                marks = marks - exclude
+            comp_comb.update(marks - {'x', 'o'})
+    return comp_comb
+
+
 def choose_pos_bot(board, player):
     opponent = 'o' if player == 'x' else 'x'
 
-    comb_comp = set()
-    # mark this(these) cell(s) to complete the line or block opponent's line
-
     # 1. Win: If the player has two in a row,
     # they can place a third to get three in a row.
-    for L in THREES:  # L stands for line
-        marks = set(board[index] for index in L)
-        if len(marks) == 2 and len(marks - {'x', 'o'}) == 1:
-            comp = marks - {'x', 'o'}
-            # mark this cell to complete the line or block opponent's line
-            if player in marks:   # player can complete the line
-                return list(comp).pop()  # (1)
-            if opponent in marks:
-                comb_comp.update(comp)
+    comp_comb = _complete_combinations(board, LINES, player)
+    if comp_comb:
+        return list(comp_comb).pop(round(random.random() * len(comp_comb)) - 1)
 
     # 2. Block: If the opponent has two in a row,
     # the player must play the third themselves to block the opponent.
-    if comb_comp:  # opponent can mark this(these) cell(s) to complete the line
-        return list(comb_comp).pop()  # (2)
-
-    comb_comp = set()
-    # mark this(these) cell(s) to make the fork(s) or prevent the opponent from creating a fork
+    comp_comb = _complete_combinations(board, LINES, opponent)
+    if comp_comb:
+        return list(comp_comb).pop(round(random.random() * len(comp_comb)) - 1)
 
     # 3. Fork: Create an opportunity where the player
     # has two ways to win (two non-blocked lines of 2).
-    for f in FORKS.keys():
-        if len(set(board[index] for index in FORKS[f]) - {'x', 'o'}) != 2:
-            break  # fork that is not open is not a fork
-        marks = set(board[index] for index in f)
-        if len(marks) == 2 and len(marks - {'x', 'o'}) == 1:
-            comp = marks - {'x', 'o'}
-            # mark this cell to make the fork or prevent the opponent from creating a fork
-            if player in marks:  # player can make a fork
-                return list(comp).pop()  # (3)
-            if opponent in marks:  # (4)
-                comb_comp.update(comp)
+    true_forks = _select_true_forks(board, FORKS.keys())
+    comp_comb = _complete_combinations(board, true_forks, player)
+    if comp_comb:
+        return list(comp_comb).pop(round(random.random() * len(comp_comb)) - 1)
 
     # 4. Blocking an opponent's fork:
     # 4.1. If there is only one possible fork for the opponent,
     #      the player should block it.
-    if len(comb_comp) == 1:
-        return list(comb_comp).pop()  # (4.1)
+    comp_comb = _complete_combinations(board, true_forks, opponent)
+    if len(comp_comb) == 1:
+        return list(comp_comb).pop(round(random.random() * len(comp_comb)) - 1)
 
     # 4.2. Otherwise, the player should create a two in a row
     #      to force the opponent into defending,
@@ -124,74 +165,41 @@ def choose_pos_bot(board, player):
     #      and "O" has the center, "o" must not play a corner
     #      in order to win. (Playing a corner in this scenario
     #      creates a fork for "x" to win.)
-    if len(comb_comp) > 1:
-        comp_2_in_row = {}
-        # mark any of these(these) cell(s) to make two in a row
-        # this will be a dictionary, unlike comb_comp
-        # keys - cells that the opponent will mark to defend themselves
-        # values - cells that we can mark to make two in a row
-        #          forcing the opponent into defending
-        # and vice versa (!)
-        for L in THREES:  # L stands for line
-            marks = set(board[index] for index in L)
-            if len(marks) == 3 and player in marks and opponent not in marks:
-                first_cell, second_cell = tuple(marks - {'x', 'o'})
-                comp_2_in_row[first_cell] = second_cell
-                comp_2_in_row[second_cell] = first_cell
-        # now we know all the ways to create two in a row
-        # (if there are ways to do it)
-        # and we know how the opponent will defend themselves
-        # but we should ensure that the opponent won't make a fork
-        # while defending.
-
-        for f in FORKS.keys():
-            if len(set(board[index] for index in FORKS[f]) - {'x', 'o'}) != 2:
-                break  # fork that is not open is not a fork
-            marks = set(board[index] for index in f)
-            if len(marks) == 2 and opponent in marks and player not in marks:
-                comp = list(marks - {'x', 'o'}).pop()
-                if comp in comp_2_in_row.keys():
-                    del comp_2_in_row[comp]
+    elif len(comp_comb) > 1:
+        comp_2_in_row = _complete_combinations(
+            board, LINES, player, s=3, warning=comp_comb
+        )
         if comp_2_in_row:
-            return list(i for i in comp_2_in_row.values()).pop()  # # (4.2)
+            return list(comp_2_in_row).pop(round(random.random() * len(comp_2_in_row)) - 1)
 
     # 5. Center: A player marks the center.
     # (If it is the first move of the game, playing on a corner
     # gives the second player more opportunities to make a mistake
     # and may therefore be the better choice; however, it makes
     # no difference between perfect players.)
-    if 5 in board and player == 'o':
+    if 5 in board and (player == 'o' or random.random() <= 0.2):
         return 5
+    # player x will start from 5 in 20% of cases
 
     # 6. Opposite corner: If the opponent is in the corner,
     # the player plays the opposite corner.
-    corners = {0: 8, 2: 6, 8: 0, 6: 2}  # indexes
-    key_list = [i for i in corners.keys()]
-    random.shuffle(key_list)
-    for corner in key_list:
-        if (board[corner] == opponent
-                and board[corners[corner]] not in {'x', 'o'}):
-            return corners[corner] + 1
-            # position number, not index in board list
+    comp_comb = _complete_combinations(board, CORNERS, opponent)
+    if comp_comb:
+        return list(comp_comb).pop(round(random.random() * len(comp_comb)) - 1)
 
     # 7. Empty corner: The player plays in a corner square.
-    corners = [0, 2, 6, 8]
-    random.shuffle(corners)
-    for corner in corners:
-        if board[corner] not in {'x', 'o'}:
-            return board[corner]
-
     # 8. Empty side: The player plays in a middle square on any of the 4 sides.
-    sides = [0, 2, 6, 8]
+    corners = [0, 2, 6, 8]
+    sides = [1, 3, 5, 7]
+    random.shuffle(corners)
     random.shuffle(sides)
-    for side in sides:
-        if board[side] not in {'x', 'o'}:
-            return board[side]
+    for index in corners + sides:
+        if board[index] not in {'x', 'o'}:
+            return board[index]
 
     # just in case:
-    return list(
-        set(board) - {'x', 'o'}
-    ).pop(round(random.random() * len(board)))
+    if 5 in board:
+        return 5
 
 
 def _main():
