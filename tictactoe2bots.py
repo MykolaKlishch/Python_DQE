@@ -27,7 +27,7 @@ def _main():
         try:
             iterations = int(input('Number of iterations: '))
         except ValueError:
-            print('Input should  integer')
+            print('Input should be integer')
         else:
             break
     for i in range(iterations):
