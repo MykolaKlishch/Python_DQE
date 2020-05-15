@@ -4,10 +4,6 @@ The bot is hard-wired
 i.e. implemented w/o ML
 """
 
-# !!! debug choose_pos_bot() function
-# !!! documentation for choose_pos_bot() function
-# !!! bot vs bot
-
 import random
 import re
 from tictactoe import visualize, victory, get_pos as get_pos_player
