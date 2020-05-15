@@ -14,8 +14,7 @@ FORKS = {
     # 3 4 5
     # 6 7 8
     # keys - fork combinations (as indexes for board list)
-    # values - two ways to complete each fork
-    # (as indexes for board list)
+    # values - ways to extend each fork into three in a row
     (0, 1, 3): (2, 6),
     (0, 1, 4): (2, 7, 8),
     (0, 2, 4): (1, 6, 8),
@@ -39,17 +38,17 @@ FORKS = {
     (4, 6, 7): (1, 2, 8),
     (4, 6, 8): (0, 2, 7),
     (4, 7, 8): (0, 1, 6),
-    (5, 7, 8): (2, 6),
+    (5, 7, 8): (2, 6)
 }
 
-LINES = {  # indexes combinations for board list corresponding to:
+LINES = {  # indexes combinations to three in a row:
     (0, 1, 2), (3, 4, 5), (6, 7, 8),  # horizontal lines
     (0, 3, 6), (1, 4, 7), (2, 5, 8),  # vertical lines
     (0, 4, 8), (2, 4, 6)              # diagonals
 }
 
-CORNERS = {  # indexes combinations for board list corresponding to
-    (0, 8), (2, 6),  # opposite corners
+CORNERS = {  # indexes combinations for opposite corners
+    (0, 8), (2, 6)
 }
 
 
@@ -86,6 +85,22 @@ def _select_true_forks(board, forks):
     return true_forks
 
 
+def _handle_warning(marks, warning):
+    """Excludes those positions from marks
+    that can provoke the opponent to make a fork.
+    :param marks: set
+    :param warning: set
+        don't provoke the opponent
+        into marking these positions.
+    :return: set
+    """
+    exclude = set()
+    for mark in marks:
+        if mark in warning:
+            exclude.update(marks - {mark})
+    return marks - exclude
+
+
 def _complete_combinations(board, combinations,
                            player, s=2, warning=None):
     """Returns a set of cells that can be marked
@@ -105,8 +120,8 @@ def _complete_combinations(board, combinations,
     and some_int is the exact position that should
     be marked to complete the line.
 
-    # warning - don't provoke the opponent
-    # into marking these positions
+    warning - don't provoke the opponent
+    into marking these positions.
 
     :param board: list
     :param combinations: set of tuples
@@ -119,11 +134,7 @@ def _complete_combinations(board, combinations,
         marks = set(board[index] for index in comb)
         if len(marks) == s and player in marks and opponent not in marks:
             if s == 3 and warning:
-                exclude = set()
-                for mark in marks:
-                    if mark in warning:
-                        exclude.update(marks - {mark})
-                marks = marks - exclude
+                marks = _handle_warning(marks, warning)
             comp_comb.update(marks - {'x', 'o'})
     return comp_comb
 
