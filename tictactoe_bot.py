@@ -1,12 +1,11 @@
-"""Implements player vs bot tic-tac-toe game
-
-The bot is hard-wired
-i.e. implemented w/o ML
+"""A bot that implements a strategy
+of a perfect tic-tac-toe player
+i.e. it can either win or draw.
+The bot is implemented as function bot().
+The bot is hard-wired, i.e. implemented w/o ML.
 """
 
 import random
-import re
-from tictactoe import visualize, victory, get_pos as get_pos_player
 
 FORKS = {
     # indexes for board list:
@@ -41,7 +40,7 @@ FORKS = {
     (5, 7, 8): (2, 6)
 }
 
-LINES = {  # indexes combinations to three in a row:
+LINES = {  # indexes combinations for three in a row:
     (0, 1, 2), (3, 4, 5), (6, 7, 8),  # horizontal lines
     (0, 3, 6), (1, 4, 7), (2, 5, 8),  # vertical lines
     (0, 4, 8), (2, 4, 6)              # diagonals
@@ -52,26 +51,7 @@ CORNERS = {  # indexes combinations for opposite corners
 }
 
 
-def initialize_players():
-    """Allows the player to choose
-    to play as x or y.
-    Bot will pick another side.
-    :return: tuple(str)
-    """
-    print('Choose your side:\n'
-          'Player x (starts the game)\n'
-          'Player o (follows player x)\n'
-          'Type x or o to choose: ', end='')
-    while True:
-        human = input()
-        if not re.match(r'^[xo]$', human):  # incorrect input
-            print('Please type a single character (x or o): ', end='')
-            continue
-        bot = 'o' if human == 'x' else 'x'
-        return human, bot
-
-
-def choose_pos_bot(board, player):
+def bot(board, player):
     """Implements a strategy of a perfect tic-tac-toe player.
 
     The strategy is implemented as a sequence of cases
@@ -112,6 +92,9 @@ def choose_pos_bot(board, player):
     #8. Empty side: The player plays in a middle square
     on any of the 4 sides.
 
+    strategy description from:
+    en.wikipedia.org/wiki/Tic-tac-toe (15.05.2020)
+
     :param board: list
     :param player: str
     :return: int
@@ -147,7 +130,7 @@ def choose_pos_bot(board, player):
 
 
 def _select_true_forks(board, forks):
-    """A fork that is not open is not a fork
+    """A fork that is not open is not a fork.
     :param board: list
     :param forks: iterable of tuples
     :return: set
@@ -160,22 +143,6 @@ def _select_true_forks(board, forks):
     return true_forks
 
 
-def _handle_warning(marks, warning):
-    """Excludes those positions from marks
-    that can provoke the opponent to make a fork.
-    :param marks: set
-    :param warning: set
-        don't provoke the opponent
-        into marking these positions.
-    :return: set
-    """
-    exclude = set()
-    for mark in marks:
-        if mark in warning:
-            exclude.update(marks - {mark})
-    return marks - exclude
-
-
 def _complete_combinations(board, combinations,
                            player, s=2, warning=None):
     """Returns a set of cells that can be marked
@@ -185,12 +152,16 @@ def _complete_combinations(board, combinations,
     in the next turn - so these combinations can be blocked.
 
     marks - a set of symbols (players' marks or digits)
-    that are present
-    s - a critical length of marks set. For example:
-    check if the player can complete the line:
+    in a particular combination on the board (line, fork, etc.)
+    s - a critical length of marks set.
+    Example:
+    check if the player can complete the line.
     1) len(marks) == s == 2
     2) player's mark 'x' is present in the set
     3) opponent's mark 'o' is absent in the set
+    Each line has 3 cells. From (1, 2, 3) it follows that:
+       * two of the cells are already marked 'x';
+       * the third one is still vacant.
     This means that marks = {'x', some_int}
     and some_int is the exact position that should
     be marked to complete the line.
@@ -201,6 +172,8 @@ def _complete_combinations(board, combinations,
     :param board: list
     :param combinations: set of tuples
     :param player: string
+    :param s: int
+    :param warning: set
     :return: set
     """
     opponent = 'o' if player == 'x' else 'x'
@@ -214,25 +187,17 @@ def _complete_combinations(board, combinations,
     return comp_comb
 
 
-def _main():
-    human, bot = initialize_players()
-    board = [i + 1 for i in range(9)]  # position numbers
-    if 'x' == human:
-        visualize(board)
-    for move in range(9):
-        player = ('x', 'o')[move % 2]
-        if player == human:
-            board[get_pos_player(board, player) - 1] = player
-        if player == bot:
-            pos = choose_pos_bot(board, player)
-            board[pos - 1] = player
-            print(f'Player {player} (bot): {pos}')
-        visualize(board)
-        if victory(board, player):
-            print(f'Player {player} won!')
-            exit()
-    print('Draw!')
-
-
-if __name__ == '__main__':
-    _main()
+def _handle_warning(marks, warning):
+    """Excludes those positions from marks
+    which can provoke the opponent to make a fork.
+    :param marks: set
+    :param warning: set
+        don't provoke the opponent
+        into marking these positions.
+    :return: set
+    """
+    exclude = set()
+    for mark in marks:
+        if mark in warning:
+            exclude.update(marks - {mark})
+    return marks - exclude
