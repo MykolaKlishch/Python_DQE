@@ -1,7 +1,8 @@
 """Tic-tac-toe game implementation"""
 
-import sys
 import re
+import sys
+
 try:
     from tictactoe_bot import bot
 except ImportError:
