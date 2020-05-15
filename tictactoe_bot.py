@@ -108,6 +108,7 @@ def choose_pos_bot(board, player):
     the player plays the opposite corner.
 
     #7. Empty corner: The player plays in a corner square.
+
     #8. Empty side: The player plays in a middle square
     on any of the 4 sides.
 
