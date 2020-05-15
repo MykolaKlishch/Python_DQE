@@ -33,7 +33,7 @@ def _main():
     for i in range(iterations):
         bot_vs_bot()
     print(log)
-    print('---------------------------------')
+    print('--------------------------------')
     for game in sorted(set(log.split('\n'))):
         print(game)
     print(len(set(log.strip().split('\n'))), 'combinations out of 48')
