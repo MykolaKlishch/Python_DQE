@@ -142,12 +142,13 @@ def print_log():
     """Outputs log of iterated "bot vs bot" games
     :return: None
     """
-    all_combinations = sorted(set(log.strip().split('\n')))
+    print('\n===========All games:===========\n')
     print(log)
+    all_combinations = sorted(set(log.strip().split('\n')))
     print('========All combinations:=======\n')
     for record in all_combinations:
         print(record)
-    print(f'\n{len(all_combinations)} combinations out of 48')
+    print(f'\n{len(all_combinations)} game combinations out of 48')
     # 48 == 3 distinct combinations * 4 rotations * 4 reflections
 
 
