@@ -150,7 +150,6 @@ def _complete_combinations(board, combinations,
     Calling this function with player=opponent
     returns the combinations that opponent can complete
     in the next turn - so these combinations can be blocked.
-
     :param board: list
     :param combinations: set of tuples
     :param player: string
