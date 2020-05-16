@@ -88,10 +88,10 @@ def victory(board, player):
     :param player: str
     :return: boolean
     """
-    for L in (  # indexes combinations for board list corresponding to:
+    for L in (  # index combinations for board list corresponding to:
             (0, 1, 2), (3, 4, 5), (6, 7, 8),  # horizontal lines
             (0, 3, 6), (1, 4, 7), (2, 5, 8),  # vertical lines
-            (0, 4, 8), (2, 4, 6)  # diagonals
+            (0, 4, 8), (2, 4, 6)              # diagonals
     ):
         if board[L[0]] == board[L[1]] == board[L[2]] == player:
             return True
