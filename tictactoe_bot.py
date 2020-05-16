@@ -118,7 +118,7 @@ def bot(board, player):
                 return list(comp_comb).pop(
                     round(random.random() * len(comp_comb)) - 1)
         elif case == '5':
-            if 5 in board and (player == 'o' or random.random() <= 0.2):
+            if 5 in board and (opponent in board or random.random() <= 0.2):
                 return 5  # player x will start from 5 in 20% of cases
         elif case in '78':
             corners, sides = [1, 3, 7, 9], [2, 4, 6, 8]

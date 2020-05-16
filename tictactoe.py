@@ -45,31 +45,21 @@ def visualize(board, entities):
             print('└───┴───┴───┘')
 
 
-def get_pos(board, player, entities):
-    """Next move of the player (human or bot).
-    If player is human, the function checks
-    if the move is possible.
+def game(entities):
+    """Implements game process in all 3 modes
+    Returns game result
     :param entities: dict
-    :param board: list
-    :param player: str
-    :return: int
+    :return: str
     """
-    if entities[player] == 'human':
-        while True:
-            position = int(process_input(
-                f'Player {player}: ', r'^[1-9]$', HINT_MOVE))
-            if position not in board:
-                print('Impossible move. Please try again.')
-                continue
-            break
-    else:
-        position = bot(board, player)
-        if 'human' in entities.values():
-            print(f'Player {player} (bot): {position}')
-        else:
-            global log
-            log += f'{player}{position}-'
-    return position
+    board = [i + 1 for i in range(9)]  # position numbers
+    visualize(board, entities)
+    for move in range(9):
+        player = ('x', 'o')[move % 2]
+        board[get_pos(board, player, entities) - 1] = player
+        visualize(board, entities)
+        if victory(board, player):
+            return f'Player {player} won!'
+    return 'Draw!'
 
 
 def victory(board, player):
@@ -88,7 +78,34 @@ def victory(board, player):
     return False
 
 
-def process_input(inp_msg, template, hint):
+def get_pos(board, player, entities):
+    """Next move of the player (human or bot).
+    If player is human, the function checks
+    if the move is possible.
+    :param entities: dict
+    :param board: list
+    :param player: str
+    :return: int
+    """
+    if entities[player] == 'human':
+        while True:
+            position = int(validate_input(
+                f'Player {player}: ', r'^[1-9]$', HINT_MOVE))
+            if position not in board:
+                print('Impossible move. Please try again.')
+                continue
+            break
+    else:
+        position = bot(board, player)
+        if 'human' in entities.values():
+            print(f'Player {player} (bot): {position}')
+        else:
+            global log
+            log += f'{player}{position}-'
+    return position
+
+
+def validate_input(inp_msg, template, hint):
     """Takes the input and checks if it is correct.
     :param inp_msg: str
     :param template: str (regex)
@@ -114,32 +131,15 @@ def initialize():
         return {'x': 'human', 'o': 'human'}
     else:
         print('tictactoe_bot has been imported successfully!')
-    game_mode = process_input(MSG_MODE, r'^[123]$', HINT_MODE)
+    game_mode = validate_input(MSG_MODE, r'^[123]$', HINT_MODE)
     if game_mode == '3':
         return {'x': 'bot', 'o': 'bot'}
     elif game_mode == '1':
         return {'x': 'human', 'o': 'human'}
     elif game_mode == '2':
-        human_ = process_input(MSG_SIDE, r'^[xo]$', HINT_SIDE)
+        human_ = validate_input(MSG_SIDE, r'^[xo]$', HINT_SIDE)
         bot_ = 'o' if human_ == 'x' else 'x'
         return {human_: 'human', bot_: 'bot'}
-
-
-def game(entities):
-    """Implements game process in all 3 modes
-    Returns game result
-    :param entities: dict
-    :return: str
-    """
-    board = [i + 1 for i in range(9)]  # position numbers
-    visualize(board, entities)
-    for move in range(9):
-        player = ('x', 'o')[move % 2]
-        board[get_pos(board, player, entities) - 1] = player
-        visualize(board, entities)
-        if victory(board, player):
-            return f'Player {player} won!'
-    return 'Draw!'
 
 
 def print_log():
@@ -162,7 +162,7 @@ def _main():
         print(game(entities))  # print game result
     else:
         iterations = int(
-            process_input(MSG_ITER, r'^[1-9]+[0-9]*$', HINT_ITER))
+            validate_input(MSG_ITER, r'^[1-9]+[0-9]*$', HINT_ITER))
         global log
         for i in range(iterations):
             log_outcome = game(entities)
