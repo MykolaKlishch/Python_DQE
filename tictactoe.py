@@ -17,13 +17,16 @@ MSG_SIDE = """Choose your side:
 Player x (starts the game)
 Player o (follows player x)
 Type x or o to choose: """
+MSG_MOVE = "Player {}: "
 MSG_ITER = "Number of iterations: "
-
+RE_MODE = r'^[123]$'
+RE_SIDE = r'^[xo]$'
+RE_MOVE = r'^[1-9]$'
+RE_ITER = r'^[1-9]+[0-9]*$'
 HINT_MODE = "Please type a single digit from 1 to 3: "
 HINT_SIDE = "Please type a single character (x or o): "
 HINT_MOVE = "Please type a single digit from 1 to 9: "
 HINT_ITER = "Input should be integer. Please try again: "
-
 log = ''
 
 
@@ -90,7 +93,7 @@ def get_pos(board, player, entities):
     if entities[player] == 'human':
         while True:
             position = int(validate_input(
-                f'Player {player}: ', r'^[1-9]$', HINT_MOVE))
+                MSG_MOVE.format(player), RE_MOVE, HINT_MOVE))
             if position not in board:
                 print('Impossible move. Please try again.')
                 continue
@@ -131,13 +134,13 @@ def initialize():
         return {'x': 'human', 'o': 'human'}
     else:
         print('tictactoe_bot has been imported successfully!')
-    game_mode = validate_input(MSG_MODE, r'^[123]$', HINT_MODE)
+    game_mode = validate_input(MSG_MODE, RE_MODE, HINT_MODE)
     if game_mode == '3':
         return {'x': 'bot', 'o': 'bot'}
     elif game_mode == '1':
         return {'x': 'human', 'o': 'human'}
     elif game_mode == '2':
-        human_ = validate_input(MSG_SIDE, r'^[xo]$', HINT_SIDE)
+        human_ = validate_input(MSG_SIDE, RE_SIDE, HINT_SIDE)
         bot_ = 'o' if human_ == 'x' else 'x'
         return {human_: 'human', bot_: 'bot'}
 
@@ -161,8 +164,7 @@ def _main():
     if 'human' in entities.values():
         print(game(entities))  # print game result
     else:
-        iterations = int(
-            validate_input(MSG_ITER, r'^[1-9]+[0-9]*$', HINT_ITER))
+        iterations = int(validate_input(MSG_ITER, RE_ITER, HINT_ITER))
         global log
         for i in range(iterations):
             log_outcome = game(entities)
