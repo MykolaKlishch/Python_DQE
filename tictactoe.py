@@ -83,7 +83,7 @@ def game(entities):
 
 def victory(board, player):
     """Checks if the particular player has won the game.
-    Uses tuples with indexes.
+    Uses tuples with predefined indexes.
     :param board: list
     :param player: str
     :return: boolean
