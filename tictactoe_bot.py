@@ -136,8 +136,8 @@ def _select_true_forks(board, forks):
     """
     true_forks = set()
     for fork in forks:
-        if len(set(board[index] for index in FORKS[fork])
-               - {'x', 'o'}) > 1:
+        marks = set(board[index] for index in FORKS[fork])
+        if len(marks - {'x', 'o'}) > 1:
             true_forks.add(fork)
     return true_forks
 
