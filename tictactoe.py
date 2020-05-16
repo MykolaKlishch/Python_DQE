@@ -66,7 +66,7 @@ def visualize(board, entities):
 
 
 def game(entities):
-    """Implements game process in all 3 modes
+    """Implements game process in all 3 modes.
     Returns game result
     :param entities: dict
     :return: str

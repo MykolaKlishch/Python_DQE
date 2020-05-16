@@ -1,6 +1,7 @@
 """A bot that implements a strategy
 of a perfect tic-tac-toe player
 i.e. it can either win or draw.
+
 The bot is implemented as function bot().
 The bot is hard-wired, i.e. implemented w/o ML.
 """
@@ -166,10 +167,10 @@ def _complete_combinations(board, combinations,
     # 1) len(marks) == s == 2
     # 2) player's mark 'x' is present in the set
     # 3) opponent's mark 'o' is absent in the set
-    # Each line has 3 cells. From (1, 2, 3) it follows that:
+    # Each line has 3 cells. From (1), (2), (3) =>
     #    * two of the cells are already marked 'x';
     #    * the third one is still vacant.
-    # This means that marks = {'x', some_int}
+    # This means that marks == {'x', some_int}
     # and some_int is the exact position that should
     # be marked to complete the line.
 
