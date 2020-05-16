@@ -129,7 +129,7 @@ def bot(board, player):
 
 
 def _select_true_forks(board, forks):
-    """A fork that is not open is not a fork.
+    """A fork that is blocked is not a fork.
     :param board: list
     :param forks: iterable of tuples
     :return: set
