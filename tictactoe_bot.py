@@ -53,55 +53,54 @@ CORNERS = {  # indexes combinations for opposite corners
 
 def bot(board, player):
     """Implements a strategy of a perfect tic-tac-toe player.
-
-    The strategy is implemented as a sequence of cases
-    that should be checked one after another
-    until the right case is found:
-
-    #1. Win: If the player has two in a row,
-    they can place a third to get three in a row.
-
-    #2. Block: If the opponent has two in a row,
-    the player must play the third themselves to block the opponent.
-
-    #3. Fork: Create an opportunity where the player
-    has two ways to win (two non-blocked lines of 2).
-
-    #4. Blocking an opponent's fork:
-    4.1. If there is only one possible fork for the opponent,
-         the player should block it.
-    4.2. Otherwise, the player should create a two in a row
-         to force the opponent into defending,
-         as long as it doesn't result in them creating a fork.
-         For example, if "x" has two opposite corners
-         and "O" has the center, "o" must not play a corner
-         in order to win. (Playing a corner in this scenario
-         creates a fork for "x" to win.)
-
-    #5. Center: A player marks the center.
-    (If it is the first move of the game, playing on a corner
-    gives the second player more opportunities to make a mistake
-    and may therefore be the better choice; however, it makes
-    no difference between perfect players.)
-
-    #6. Opposite corner: If the opponent is in the corner,
-    the player plays the opposite corner.
-
-    #7. Empty corner: The player plays in a corner square.
-
-    #8. Empty side: The player plays in a middle square
-    on any of the 4 sides.
-
-    strategy description from:
-    en.wikipedia.org/wiki/Tic-tac-toe (15.05.2020)
-
     :param board: list
     :param player: str
     :return: int
     """
+    # The strategy is implemented as a sequence of cases
+    # that are checked one after another until the right
+    # case is found:
+    #
+    # 1. Win: If the player has two in a row,
+    # they can place a third to get three in a row.
+    #
+    # 2. Block: If the opponent has two in a row,
+    # the player must play the third themselves to block the opponent.
+    #
+    # 3. Fork: Create an opportunity where the player
+    # has two ways to win (two non-blocked lines of 2).
+    #
+    # 4. Blocking an opponent's fork:
+    # 4.1. If there is only one possible fork for the opponent,
+    #      the player should block it.
+    # 4.2. Otherwise, the player should create a two in a row
+    #      to force the opponent into defending,
+    #      as long as it doesn't result in them creating a fork.
+    #      For example, if "x" has two opposite corners
+    #      and "O" has the center, "o" must not play a corner
+    #      in order to win. (Playing a corner in this scenario
+    #      creates a fork for "x" to win.)
+    #
+    # 5. Center: A player marks the center.
+    # (If it is the first move of the game, playing on a corner
+    # gives the second player more opportunities to make a mistake
+    # and may therefore be the better choice; however, it makes
+    # no difference between perfect players.)
+    #
+    # 6. Opposite corner: If the opponent is in the corner,
+    # the player plays the opposite corner.
+    #
+    # 7. Empty corner: The player plays in a corner square.
+    #
+    # 8. Empty side: The player plays in a middle square
+    # on any of the 4 sides.
+    #
+    # strategy description from:
+    # https://en.wikipedia.org/wiki/Tic-tac-toe (15.05.2020)
+
     opponent = 'o' if player == 'x' else 'x'
     true_forks = _select_true_forks(board, FORKS.keys())
-    params = {  # case: parameters set for _complete_combinations()
+    params = {  # case: parameters for _complete_combinations()
         '1': (board, LINES, player),
         '2': (board, LINES, opponent),
         '3': (board, true_forks, player),
@@ -124,7 +123,7 @@ def bot(board, player):
             corners, sides = [1, 3, 7, 9], [2, 4, 6, 8]
             random.shuffle(corners)
             random.shuffle(sides)
-            for pos in corners + sides + [5]:
+            for pos in corners + sides:
                 if pos in board:
                     return pos
 
@@ -150,32 +149,30 @@ def _complete_combinations(board, combinations,
     Calling this function with player=opponent
     returns the combinations that opponent can complete
     in the next turn - so these combinations can be blocked.
-
-    marks - a set of symbols (players' marks or digits)
-    in a particular combination on the board (line, fork, etc.)
-    s - a critical length of marks set.
-    Example:
-    check if the player can complete the line.
-    1) len(marks) == s == 2
-    2) player's mark 'x' is present in the set
-    3) opponent's mark 'o' is absent in the set
-    Each line has 3 cells. From (1, 2, 3) it follows that:
-       * two of the cells are already marked 'x';
-       * the third one is still vacant.
-    This means that marks = {'x', some_int}
-    and some_int is the exact position that should
-    be marked to complete the line.
-
-    warning - don't provoke the opponent
-    into marking these positions.
-
     :param board: list
     :param combinations: set of tuples
     :param player: string
     :param s: int
+        a critical length of marks set
     :param warning: set
+        don't provoke the opponent
+        into marking these positions
     :return: set
     """
+    # marks - a set of symbols (players' marks or digits)
+    # in a particular combination on the board (line, fork, etc.)
+    # Example:
+    # check if the player can complete the line.
+    # 1) len(marks) == s == 2
+    # 2) player's mark 'x' is present in the set
+    # 3) opponent's mark 'o' is absent in the set
+    # Each line has 3 cells. From (1, 2, 3) it follows that:
+    #    * two of the cells are already marked 'x';
+    #    * the third one is still vacant.
+    # This means that marks = {'x', some_int}
+    # and some_int is the exact position that should
+    # be marked to complete the line.
+
     opponent = 'o' if player == 'x' else 'x'
     comp_comb = set()
     for comb in combinations:
