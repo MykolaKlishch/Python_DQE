@@ -1,9 +1,9 @@
 """Tic-tac-toe game implementation
 
 There are 3 possible game modes:
-1) human vs human
-2) human vs bot
-3) bot vs bot
+1) human vs human;
+2) human vs bot;
+3) bot vs bot (multiple iterations, different visualisation).
 A bot uses a strategy of a perfect tic-tac-toe player
 i.e. it can either win or draw. For proper implementation
 of 2nd and 3rd modes, tictactoe_bot module should be imported.
