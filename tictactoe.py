@@ -1,12 +1,28 @@
-"""Tic-tac-toe game implementation"""
+"""Tic-tac-toe game implementation
 
+There are 3 possible game modes:
+1) human vs human
+2) human vs bot
+3) bot vs bot
+A bot uses a strategy of a perfect tic-tac-toe player
+i.e. it can either win or draw. For proper implementation
+of 2nd and 3rd modes, tictactoe_bot module should be imported.
+In case of ImportError, the bot is replaced with a substitute
+that makes random moves.
+"""
+
+import random
 import re
 import sys
 
 try:
-    from tictactoe_bot import bot
+    from tictactoe_bot import bot  # smart bot (original)
 except ImportError:
-    pass
+    def bot(board, player):  # stupid random bot (substitute)
+        vacant_positions = list(set(board) - {'x', 'o'})
+        random.shuffle(vacant_positions)
+        player += "I don't care! I just mark a random empty cell!"
+        return vacant_positions.pop()
 
 MSG_MODE = """Choose game mode:
 1) human vs human
@@ -41,7 +57,7 @@ def visualize(board, entities):
     for i in range(3):
         if i == 0:
             print('┌───┬───┬───┐')
-        print(f'│ {board[3*i]} │ {board[3*i + 1]} │ {board[3*i + 2]} │')
+        print(f'│ {board[3 * i]} │ {board[3 * i + 1]} │ {board[3 * i + 2]} │')
         if i <= 1:
             print('├───┼───┼───┤')
         if i == 2:
@@ -72,9 +88,9 @@ def victory(board, player):
     :return: boolean
     """
     for L in (  # indexes combinations for board list corresponding to:
-        (0, 1, 2), (3, 4, 5), (6, 7, 8),  # horizontal lines
-        (0, 3, 6), (1, 4, 7), (2, 5, 8),  # vertical lines
-        (0, 4, 8), (2, 4, 6)              # diagonals
+            (0, 1, 2), (3, 4, 5), (6, 7, 8),  # horizontal lines
+            (0, 3, 6), (1, 4, 7), (2, 5, 8),  # vertical lines
+            (0, 4, 8), (2, 4, 6)  # diagonals
     ):
         if board[L[0]] == board[L[1]] == board[L[2]] == player:
             return True
@@ -129,9 +145,9 @@ def initialize():
     :return: dict
     """
     if 'tictactoe_bot' not in sys.modules.keys():
-        print('tictactoe_bot.py module has not been imported.\n'
-              'Only human vs human mode is available')
-        return {'x': 'human', 'o': 'human'}
+        print('tictactoe_bot module has not been imported.\n'
+              '"Human vs bot" and "bot vs bot" modes are still available.\n'
+              'However, the smart bot is replaced with a stupid substitute.')
     else:
         print('tictactoe_bot has been imported successfully!')
     game_mode = validate_input(MSG_MODE, RE_MODE, HINT_MODE)
@@ -155,7 +171,8 @@ def print_log():
     print('========All combinations:=======\n')
     for record in all_combinations:
         print(record)
-    print(f'\n{len(all_combinations)} game combinations out of 48')
+    print(f'\n{len(all_combinations)} game combinations '
+          + 'out of 48' * ('tictactoe_bot' in sys.modules.keys()))
     # 48 == 3 distinct combinations * 4 rotations * 4 reflections
 
 

@@ -51,7 +51,7 @@ CORNERS = {  # indexes combinations for opposite corners
 }
 
 
-def bot(board, player):
+def bot(board, player):  # rename into bot() !!!
     """Implements a strategy of a perfect tic-tac-toe player.
     :param board: list
     :param player: str
