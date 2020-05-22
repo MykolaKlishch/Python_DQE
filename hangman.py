@@ -1,3 +1,5 @@
+"""Hangman game implementation"""
+
 from collections import Counter
 import itertools
 import re
@@ -165,11 +167,11 @@ def end_game(word_list, attempts) -> bool:
 def _main():
     print('Game rules:'
           '\n 1. Pick the word from words.txt file.'
-          '\n 2. Show the numbers of letters in your word by'
-          '\n    typing a dash pattern (e.g. -----).'
+          '\n 2. Show the numbers of letters in your word'
+          '\n    by typing a dash pattern (e.g. --------).'
           '\n 3. If I guessed the letter, please show me the'
-          '\n    position(s) of this letter (e.g. -ss--).'
-          "\n 4. If I didn't guess it the letter, just enter"
+          '\n    position(s) of this letter (e.g. -ss-----).'
+          "\n 4. If I didn't guess the letter, just enter"
           '\n    the same pattern again.\n')
     word_list = get_word_list()
     prev_dash_pattern, letter = '', ''
