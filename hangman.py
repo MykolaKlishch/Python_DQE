@@ -194,13 +194,10 @@ def convert_into_regex_pattern(dash_pattern: str) -> str:
     """
     disclosed = disclosed_letters(dash_pattern)
     if not disclosed:
-        regex_pattern = dash_pattern.replace(
-            "-", r"[\w\']")
+        dash_replacement = r"[\w']"
     else:
-        disclosed = ''.join(list(disclosed))
-        disclosed.replace("'", r"\'")
-        regex_pattern = dash_pattern.replace(
-            "-", fr"[^{disclosed}]")
+        dash_replacement = fr"[^{''.join(list(disclosed))}]"
+    regex_pattern = dash_pattern.replace("-", dash_replacement)
     final_regex_pattern = fr"^{regex_pattern}$"
     return final_regex_pattern
 
