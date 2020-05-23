@@ -38,17 +38,18 @@ def filter_word_list(
 
 def guess_letter(
         word_list: Sequence[str],
-        guessed: AbstractSet[str]) -> str:
+        dash_pattern: str) -> str:
     """Returns the letter which appears
     in the largest number of words from word list.
     Doesn't consider those letters that have already been
     disclosed. If the word list is empty, returns None.
     :param word_list: Sequence[str]
-    :param guessed: AbstractSet[str]
+    :param dash_pattern: str
     :return: str
     """
+    disclosed = disclosed_letters(dash_pattern)
     letters = Counter(itertools.chain.from_iterable(
-        (set(word.lower()) - guessed for word in word_list)))
+        (set(word.lower()) - disclosed for word in word_list)))
     if letters:
         print_statistics(word_list, letters)
         return letters.most_common(1)[0][0]
@@ -140,6 +141,14 @@ def consistent(
     return True
 
 
+def disclosed_letters(dash_pattern: str) -> AbstractSet[str]:
+    """Returns a set of letters disclosed in the dash pattern.
+    :param dash_pattern: str
+    :return: AbstractSet[str]
+    """
+    return set(dash_pattern) - set("-")
+
+
 def convert_into_regex_pattern(dash_pattern: str) -> str:
     """Converts dash pattern into regular expression.
     Generated pattern matches any word which:
@@ -149,15 +158,15 @@ def convert_into_regex_pattern(dash_pattern: str) -> str:
     :param dash_pattern: str
     :return: str
     """
-    disclosed_letters = set(dash_pattern) - set("-")
-    if not disclosed_letters:
+    disclosed = disclosed_letters(dash_pattern)
+    if not disclosed:
         regex_pattern = dash_pattern.replace(
             "-", r"[\w\']")
     else:
-        disclosed_letters = ''.join(list(disclosed_letters))
-        disclosed_letters.replace("'", r"\'")
+        disclosed = ''.join(list(disclosed))
+        disclosed.replace("'", r"\'")
         regex_pattern = dash_pattern.replace(
-            "-", fr"[^{disclosed_letters}]")
+            "-", fr"[^{disclosed}]")
     final_regex_pattern = fr"^{regex_pattern}$"
     return final_regex_pattern
 
@@ -203,7 +212,6 @@ def _main():
           '\n    the same pattern again.\n')
     word_list = get_word_list()
     prev_dash_pattern, letter = '', ''
-    guessed_letters = set()
     attempts = {'successful': 0, 'unsuccessful': 0}
     while True:
         dash_pattern = get_dash_pattern(prev_dash_pattern, letter)
@@ -218,12 +226,11 @@ def _main():
             else:
                 print(f'\nOK, so your word contains letter "{letter}".')
                 attempts['successful'] += 1
-                guessed_letters.add(letter)
             regex_pattern = convert_into_regex_pattern(dash_pattern)
             word_list = filter_word_list(word_list, regex_pattern)
         if the_end(word_list, attempts):
             break
-        letter = guess_letter(word_list, guessed_letters)
+        letter = guess_letter(word_list, dash_pattern)
         print(f'Does the word contain letter "{letter}"?')
         prev_dash_pattern = dash_pattern
 
