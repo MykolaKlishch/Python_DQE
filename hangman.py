@@ -3,12 +3,15 @@
 from collections import Counter
 import itertools
 import re
-from typing import AbstractSet, Iterable, List, Sequence
+from typing import AbstractSet, List, Sequence
 
 
 def get_word_list(filename='words.txt') -> List[str]:
     """Reads the word list from the file.
-    In case of OSError, prints customized error message."""
+    In case of OSError, prints customized error message.
+    :param filename: str
+    :return: List[str]
+    """
     try:
         f = open(filename, 'rt', encoding='utf-8')
     except OSError as e:
@@ -19,11 +22,14 @@ def get_word_list(filename='words.txt') -> List[str]:
 
 
 def filter_word_list(
-        word_list: Iterable[str],
+        word_list: Sequence[str],
         pattern: str) -> List[str]:
     """Filters the list of words.
     Words that do not match the
     specified pattern are excluded.
+    :param word_list: Sequence[str]
+    :param pattern: str
+    :return: List[str]
     """
     flags = re.IGNORECASE | re.UNICODE
     compiled_pattern = re.compile(pattern, flags=flags)
@@ -35,29 +41,75 @@ def guess_letter(
         guessed: AbstractSet[str]) -> str:
     """Returns the letter which appears
     in the largest number of words from word list.
-    If the word list is empty, returns None.
+    Doesn't consider those letters that have already been
+    disclosed. If the word list is empty, returns None.
+    :param word_list: Sequence[str]
+    :param guessed: AbstractSet[str]
+    :return: str
     """
     letters = Counter(itertools.chain.from_iterable(
         (set(word.lower()) - guessed for word in word_list)))
-    print_statistics(word_list, letters)
     if letters:
+        print_statistics(word_list, letters)
         return letters.most_common(1)[0][0]
 
 
 def print_statistics(
         word_list: Sequence[str],
         letters,
-        options=3) -> None:
-    """Prints information that is used to guess the next letter."""
+        options=5) -> None:
+    """Prints information that is used to guess the next letter.
+    :param word_list: Sequence[str]
+    :param letters: Counter
+    :param options: int
+    :return:
+    """
     total_words = len(word_list)
-    print(f' ║ There are {total_words} suitable words in the word list.')
+    print(f' ║ I know {total_words} words that match your pattern.')
     count_field_width = len(str(letters.most_common(1)[0][1]))
     for letter in letters.most_common(options):
         counts = letter[1]
         probability = counts / total_words
-        print(f' ║ Letter {letter[0]} '
+        print(f' ║ Letter "{letter[0]}" '
               f'appears in {counts:<{count_field_width}} '
               f'of them ({probability:<5.2%})')
+
+
+def get_dash_pattern(
+        prev_dash_pattern='',
+        letter_to_disclose='') -> str:
+    """Returns dash pattern based on the input from the user.
+    Checks if the input it correct and provides hints if it is not.
+    :param prev_dash_pattern: str
+    :param letter_to_disclose: str
+    :return: str
+    """
+    inp_msg = 'Enter the dash pattern: '
+    flags = re.IGNORECASE | re.UNICODE
+    while True:
+        dash_pattern = input(inp_msg).lower()
+        new_chars = set(dash_pattern) - set(prev_dash_pattern)
+        if not dash_pattern:
+            continue
+        elif not (re.match(r"^[\w'\-]+$", dash_pattern, flags=flags)
+                  and re.match(r'^[^\d_]+$', dash_pattern)):
+            inp_msg = 'Input must contain only letters, dashes (-), ' \
+                      "and apostrophes ('). \nPlease try again: "
+            continue
+        elif not consistent(dash_pattern, prev_dash_pattern):
+            inp_msg = 'This dash pattern is not consistent ' \
+                      'with the previous one! \nPlease try again: '
+            continue
+        elif (len(new_chars) > 1
+              or not prev_dash_pattern and '-' not in dash_pattern):
+            inp_msg = 'You tried to disclose too many ' \
+                      'new letters. \nPlease try again: '
+            continue
+        elif new_chars and letter_to_disclose not in str(new_chars):
+            inp_msg = 'You tried to disclose the wrong ' \
+                      'letter. \nPlease try again: '
+            continue
+        return dash_pattern
 
 
 def consistent(
@@ -65,14 +117,15 @@ def consistent(
         prev_dash_pattern='') -> bool:
     """Checks if the new dash pattern
     is consistent with the previous one.
-    Takes part in the validation of user input.
+    Takes part in validation of the user input.
     The new dash pattern is considered consistent if:
     1) it has the same length as the previous dash pattern;
-    AND
-    2) all letters disclosed in the previous pattern
-       remain at the same positions in the new dash pattern.
-    OR
-    3) there is no previous dash pattern to compare with.
+    AND 2) all letters disclosed in the previous pattern
+    remain at the same positions in the new dash pattern.
+    OR 3) there is no previous dash pattern to compare with.
+    :param dash_pattern: str
+    :param prev_dash_pattern: str
+    :return: bool
     """
     if not prev_dash_pattern:
         return True
@@ -87,90 +140,65 @@ def consistent(
     return True
 
 
-def get_dash_pattern(
-        prev_dash_pattern='',
-        letter_to_disclose='') -> str:
-    """Takes dash pattern as an input from the user.
-    Checks if the input it correct and provides hints if it is not.
-    """
-    inp_msg = 'Enter the dash pattern: '
-    flags = re.IGNORECASE | re.UNICODE
-    while True:
-        dash_pattern = input(inp_msg).lower()
-        new_chars = (set(dash_pattern) - set(prev_dash_pattern))
-        if not dash_pattern:
-            continue
-        elif not (re.match(r"^[\w'\-]+$", dash_pattern, flags=flags)
-                  and re.match(r'^[^\d_]+$', dash_pattern)):
-            inp_msg = 'Input must contain only letters,' \
-                      "dashes (-), and apostrophes ('). " \
-                      '\nPlease try again: '
-            continue
-        elif not consistent(dash_pattern, prev_dash_pattern):
-            inp_msg = 'This dash pattern is not consistent ' \
-                      'with the previous one! \nPlease try again: '
-            continue
-        elif (len(new_chars) > 1
-              or not prev_dash_pattern and '-' not in dash_pattern):
-            inp_msg = 'You tried to disclose too many ' \
-                      'new letters. \nPlease try again: '
-            continue
-        elif new_chars and letter_to_disclose not in str(new_chars):
-            inp_msg = 'You tried to disclose the wrong letter. ' \
-                      '\nPlease try again: '
-            continue
-        return dash_pattern
-
-
 def convert_into_regex_pattern(dash_pattern: str) -> str:
     """Converts dash pattern into regular expression.
     Generated pattern matches any word which:
-    1) has letters from the dash pattern in the respective positions;
-    2) doesn't have these letters in any other position.
+    1) has the same length as the dash pattern;
+    2) has letters from the dash pattern in the respective positions;
+    3) doesn't have these letters in any other position.
+    :param dash_pattern: str
+    :return: str
     """
-    disclosed_letters = set(dash_pattern) - set('-')
+    disclosed_letters = set(dash_pattern) - set("-")
     if not disclosed_letters:
         regex_pattern = dash_pattern.replace(
-            '-', fr"[\w\']")
+            "-", r"[\w\']")
     else:
         disclosed_letters = ''.join(list(disclosed_letters))
         disclosed_letters.replace("'", r"\'")
         regex_pattern = dash_pattern.replace(
-            '-', fr"[^{disclosed_letters}]")
+            "-", fr"[^{disclosed_letters}]")
     final_regex_pattern = fr"^{regex_pattern}$"
     return final_regex_pattern
 
 
-def end_game(word_list, attempts) -> bool:
+def the_end(
+        word_list: Sequence[str],
+        attempts: dict) -> bool:
     """Checks for conditions when the game ends and prints
     the respective output if one of the conditions is True.
+    :param word_list: Sequence[str]
+    :param attempts: dict
+    :return: bool
     """
-    if len(word_list) == 0:
+    words_left = len(word_list)
+    if words_left == 0:
         print("I don't know any word that matches your pattern."
               "\nMaybe you didn't pick your word from "
               "words.txt, did you?")
-    elif len(word_list) == 1:
-        print(f"""I guessed! It's "{word_list.pop()}"!""")
-    elif len(word_list) > 1 and len(
+    elif words_left == 1:
+        print(f"""Your word is "{word_list[0]}"!""")
+    elif words_left > 1 and len(
             set(word.lower() for word in word_list)) == 1:
-        print(f'The word is among the following: {word_list}'
-              ' - depending on the case.')
+        print(f"""Your word is{' either' * (words_left == 2)}"""
+              f""" "{'", "'.join(word_list[:-1])}" """
+              f"""or "{word_list[-1]}" - depending on the letter case.""")
     else:
         return False
     print(f" ║ Attempts to guess the letter:"
-          f"\n ║  * successful   : {attempts['successful']}"
-          f"\n ║  * unsuccessful : {attempts['unsuccessful']}"
-          f"\n ║  * total        : {sum(attempts.values())}")
+          f"\n ║ * successful   : {attempts['successful']}"
+          f"\n ║ * unsuccessful : {attempts['unsuccessful']}"
+          f"\n ║ * total        : {sum(attempts.values())}")
     return True
 
 
 def _main():
-    print('Game rules:'
+    print('How to play:'
           '\n 1. Pick the word from words.txt file.'
-          '\n 2. Show the numbers of letters in your word'
-          '\n    by typing a dash pattern (e.g. --------).'
+          '\n 2. Show the number of letters in your word'
+          '\n    by typing a dash pattern (e.g. ---------).'
           '\n 3. If I guessed the letter, please show me the'
-          '\n    position(s) of this letter (e.g. -ss-----).'
+          '\n    position(s) of this letter (e.g. -ss------).'
           "\n 4. If I didn't guess the letter, just enter"
           '\n    the same pattern again.\n')
     word_list = get_word_list()
@@ -179,20 +207,21 @@ def _main():
     attempts = {'successful': 0, 'unsuccessful': 0}
     while True:
         dash_pattern = get_dash_pattern(prev_dash_pattern, letter)
-        regex_pattern = convert_into_regex_pattern(dash_pattern)
-        word_list = filter_word_list(word_list, regex_pattern)
-        if prev_dash_pattern == '':
-            print(f'\nOK, so your word is '
-                  f'{len(dash_pattern)} characters long.')
-        elif prev_dash_pattern == dash_pattern:
+        if prev_dash_pattern == dash_pattern:
             print(f'\nOK, so there is no letter "{letter}" in your word.')
             attempts['unsuccessful'] += 1
             word_list = filter_word_list(word_list, fr'^[^{letter}]+$')
         else:
-            print(f'\nOK, so your word contains letter "{letter}".')
-            attempts['successful'] += 1
-            guessed_letters.add(letter)
-        if end_game(word_list, attempts):
+            if prev_dash_pattern == '':
+                print(f'\nOK, so your word is '
+                      f'{len(dash_pattern)} characters long.')
+            else:
+                print(f'\nOK, so your word contains letter "{letter}".')
+                attempts['successful'] += 1
+                guessed_letters.add(letter)
+            regex_pattern = convert_into_regex_pattern(dash_pattern)
+            word_list = filter_word_list(word_list, regex_pattern)
+        if the_end(word_list, attempts):
             break
         letter = guess_letter(word_list, guessed_letters)
         print(f'Does the word contain letter "{letter}"?')
