@@ -150,6 +150,7 @@ def consistent(
     :param dash_pattern: a new dash pattern
     :type dash_pattern: str
     :param prev_dash_pattern: a previous dash pattern
+        (default is '' - means there is no previous dash pattern)
     :type prev_dash_pattern: str
     :return: is the new dash pattern consistent with the previous one
     :rtype: bool
