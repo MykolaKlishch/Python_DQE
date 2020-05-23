@@ -1,9 +1,9 @@
-"""Hangman game implementation"""
+"""Hangman game implementation."""
 
-from collections import Counter
+import collections
 import itertools
 import re
-from typing import AbstractSet, List, Sequence
+from typing import AbstractSet, Counter, List, Sequence
 
 
 def get_word_list(filename='words.txt') -> List[str]:
@@ -47,7 +47,7 @@ def guess_letter(
     :param disclosed: AbstractSet[str]
     :return: str
     """
-    letters = Counter(itertools.chain.from_iterable(
+    letters = collections.Counter(itertools.chain.from_iterable(
         (set(word.lower()) - disclosed for word in word_list)))
     if letters:
         print_statistics(word_list, letters)
@@ -56,7 +56,7 @@ def guess_letter(
 
 def print_statistics(
         word_list: Sequence[str],
-        letters,
+        letters: Counter,
         options=5) -> None:
     """Prints information that is used to guess the next letter.
     :param word_list: Sequence[str]
@@ -193,10 +193,10 @@ def the_end(
               f"""or "{word_list[-1]}" - depending on the letter case.""")
     else:
         return False
-    print(f" ║ Attempts to guess the letter:"
-          f"\n ║ * successful   : {attempts['successful']}"
-          f"\n ║ * unsuccessful : {attempts['unsuccessful']}"
-          f"\n ║ * total        : {sum(attempts.values())}")
+    print(f" ║ Attempts to guess the letter:\n"
+          f" ║ * successful   : {attempts['successful']}\n"
+          f" ║ * unsuccessful : {attempts['unsuccessful']}\n"
+          f" ║ * total        : {sum(attempts.values())}")
     return True
 
 
