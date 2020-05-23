@@ -38,16 +38,15 @@ def filter_word_list(
 
 def guess_letter(
         word_list: Sequence[str],
-        dash_pattern: str) -> str:
+        disclosed: AbstractSet[str]) -> str:
     """Returns the letter which appears
     in the largest number of words from word list.
     Doesn't consider those letters that have already been
     disclosed. If the word list is empty, returns None.
     :param word_list: Sequence[str]
-    :param dash_pattern: str
+    :param disclosed: AbstractSet[str]
     :return: str
     """
-    disclosed = disclosed_letters(dash_pattern)
     letters = Counter(itertools.chain.from_iterable(
         (set(word.lower()) - disclosed for word in word_list)))
     if letters:
@@ -230,7 +229,7 @@ def _main():
             word_list = filter_word_list(word_list, regex_pattern)
         if the_end(word_list, attempts):
             break
-        letter = guess_letter(word_list, dash_pattern)
+        letter = guess_letter(word_list, disclosed_letters(dash_pattern))
         print(f'Does the word contain letter "{letter}"?')
         prev_dash_pattern = dash_pattern
 
