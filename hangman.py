@@ -92,8 +92,8 @@ def get_dash_pattern(
                        disclosed_letters(prev_dash_pattern))
         if not dash_pattern:
             continue
-        elif not (re.match(r"^[\w'\-]+$", dash_pattern, flags=flags)
-                  and re.match(r'^[^\d_]+$', dash_pattern)):
+        elif not (re.match(r"^[\w'-]+$", dash_pattern, flags=flags)
+                  and re.match(r'^[^\d_]+$', dash_pattern, flags=flags)):
             inp_msg = 'Input must contain only letters, dashes (-), ' \
                       "and apostrophes ('). \nPlease try again: "
             continue
