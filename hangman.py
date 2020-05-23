@@ -88,7 +88,8 @@ def get_dash_pattern(
     flags = re.IGNORECASE | re.UNICODE
     while True:
         dash_pattern = input(inp_msg).lower()
-        new_chars = set(dash_pattern) - set(prev_dash_pattern)
+        new_letters = (disclosed_letters(dash_pattern) -
+                       disclosed_letters(prev_dash_pattern))
         if not dash_pattern:
             continue
         elif not (re.match(r"^[\w'\-]+$", dash_pattern, flags=flags)
@@ -100,12 +101,11 @@ def get_dash_pattern(
             inp_msg = 'This dash pattern is not consistent ' \
                       'with the previous one! \nPlease try again: '
             continue
-        elif (len(new_chars) > 1
-              or not prev_dash_pattern and '-' not in dash_pattern):
+        elif len(new_letters) > 1 - (not prev_dash_pattern):
             inp_msg = 'You tried to disclose too many ' \
                       'new letters. \nPlease try again: '
             continue
-        elif new_chars and letter_to_disclose not in str(new_chars):
+        elif new_letters and letter_to_disclose not in new_letters:
             inp_msg = 'You tried to disclose the wrong ' \
                       'letter. \nPlease try again: '
             continue
