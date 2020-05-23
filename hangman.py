@@ -9,8 +9,12 @@ from typing import AbstractSet, Counter, List, Sequence
 def get_word_list(filename='words.txt') -> List[str]:
     """Reads the word list from the file.
     In case of OSError, prints customized error message.
-    :param filename: str
-    :return: List[str]
+
+    :param filename: name of the file with words
+        (default is 'words.txt' from the same directory)
+    :type filename: str
+    :return: a list of words
+    :rtype: List[str]
     """
     try:
         f = open(filename, 'rt', encoding='utf-8')
@@ -27,9 +31,13 @@ def filter_word_list(
     """Filters the list of words.
     Words that do not match the
     specified pattern are excluded.
-    :param word_list: Sequence[str]
-    :param pattern: str
-    :return: List[str]
+
+    :param word_list: a list of words to filter
+    :type word_list: Sequence[str]
+    :param pattern: regular expression
+    :type pattern: str
+    :return: a list of words that match the pattern
+    :rtype: List[str]
     """
     flags = re.IGNORECASE | re.UNICODE
     compiled_pattern = re.compile(pattern, flags=flags)
@@ -39,13 +47,16 @@ def filter_word_list(
 def guess_letter(
         word_list: Sequence[str],
         disclosed: AbstractSet[str]) -> str:
-    """Returns the letter which appears
-    in the largest number of words from word list.
-    Doesn't consider those letters that have already been
-    disclosed. If the word list is empty, returns None.
-    :param word_list: Sequence[str]
-    :param disclosed: AbstractSet[str]
-    :return: str
+    """Returns the letter which appears in
+    the largest number of words from word list.
+
+    :param word_list: a list of words
+    :type word_list: Sequence[str]
+    :param disclosed: letters to ignore (already guessed)
+    :type disclosed: AbstractSet[str]
+    :return: a single letter
+    :rtype: str
+        if the word list is empty, returns None
     """
     letters = collections.Counter(itertools.chain.from_iterable(
         (set(word.lower()) - disclosed for word in word_list)))
@@ -59,10 +70,15 @@ def print_statistics(
         letters: Counter,
         options=5) -> None:
     """Prints information that is used to guess the next letter.
-    :param word_list: Sequence[str]
-    :param letters: Counter
-    :param options: int
-    :return:
+
+    :param word_list: a list of words
+    :type word_list: Sequence[str]
+    :param letters: Counter {letter: number of words}
+    :type letters: Counter
+    :param options: number of the most common letters to display
+        (default is 5)
+    :type options: int
+    :return: None
     """
     total_words = len(word_list)
     print(f' ║ I know {total_words} words that match your pattern.')
@@ -79,10 +95,16 @@ def get_dash_pattern(
         prev_dash_pattern='',
         letter_to_disclose='') -> str:
     """Returns dash pattern based on the input from the user.
-    Checks if the input it correct and provides hints if it is not.
+    Validates the input it correct and provides hints if it is not correct.
+
     :param prev_dash_pattern: str
-    :param letter_to_disclose: str
-    :return: str
+        (default is '')
+    :type prev_dash_pattern: str
+    :param letter_to_disclose: a letter that may be disclosed
+        (default is '')
+    :type letter_to_disclose: str
+    :return: validated dash pattern
+    :rtype: str
     """
     inp_msg = 'Enter the dash pattern: '
     flags = re.IGNORECASE | re.UNICODE
@@ -117,15 +139,20 @@ def consistent(
         prev_dash_pattern='') -> bool:
     """Checks if the new dash pattern
     is consistent with the previous one.
+
     Takes part in validation of the user input.
     The new dash pattern is considered consistent if:
     1) it has the same length as the previous dash pattern;
     AND 2) all letters disclosed in the previous pattern
     remain at the same positions in the new dash pattern.
     OR 3) there is no previous dash pattern to compare with.
-    :param dash_pattern: str
-    :param prev_dash_pattern: str
-    :return: bool
+
+    :param dash_pattern: a new dash pattern
+    :type dash_pattern: str
+    :param prev_dash_pattern: a previous dash pattern
+    :type prev_dash_pattern: str
+    :return: is the new dash pattern consistent with the previous one
+    :rtype: bool
     """
     if not prev_dash_pattern:
         return True
@@ -142,20 +169,27 @@ def consistent(
 
 def disclosed_letters(dash_pattern: str) -> AbstractSet[str]:
     """Returns a set of letters disclosed in the dash pattern.
-    :param dash_pattern: str
-    :return: AbstractSet[str]
+
+    :param dash_pattern: dash pattern w/ or w/o letters
+    :type dash_pattern: str
+    :return: letters that occur in the dash pattern
+    :rtype: AbstractSet[str]
     """
     return set(dash_pattern) - set("-")
 
 
 def convert_into_regex_pattern(dash_pattern: str) -> str:
     """Converts dash pattern into regular expression.
+
     Generated pattern matches any word which:
     1) has the same length as the dash pattern;
-    2) has letters from the dash pattern in the respective positions;
+    2) has letters from the dash pattern in the same positions;
     3) doesn't have these letters in any other position.
-    :param dash_pattern: str
-    :return: str
+
+    :param dash_pattern: dash pattern to convert into regex
+    :type: str
+    :return: regular expression
+    :rtype: str
     """
     disclosed = disclosed_letters(dash_pattern)
     if not disclosed:
@@ -175,9 +209,14 @@ def the_end(
         attempts: dict) -> bool:
     """Checks for conditions when the game ends and prints
     the respective output if one of the conditions is True.
-    :param word_list: Sequence[str]
-    :param attempts: dict
-    :return: bool
+
+    :param word_list: a list of words
+    :type word_list: Sequence[str]
+    :param attempts: number of attempts to guess a letter
+        (successful and unsuccessful)
+    :type attempts: dict
+    :return: is it the en of the game
+    :rtype: bool
     """
     words_left = len(word_list)
     if words_left == 0:
@@ -200,7 +239,11 @@ def the_end(
     return True
 
 
-def _main():
+def main():
+    """Implements the game process.
+
+    :return: None
+    """
     print('How to play:'
           '\n 1. Pick the word from words.txt file.'
           '\n 2. Show the number of letters in your word'
@@ -235,4 +278,4 @@ def _main():
 
 
 if __name__ == '__main__':
-    _main()
+    main()
