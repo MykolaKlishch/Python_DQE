@@ -223,8 +223,7 @@ def the_end(
               "words.txt, did you?")
     elif words_left == 1:
         print(f"""Your word is "{word_list[0]}"!""")
-    elif words_left > 1 and len(
-            set(word.lower() for word in word_list)) == 1:
+    elif set(word.lower() for word in word_list) == 1:
         print(f"""Your word is{' either' * (words_left == 2)}"""
               f""" "{'", "'.join(word_list[:-1])}" """
               f"""or "{word_list[-1]}" - depending on the letter case.""")
