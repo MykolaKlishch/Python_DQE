@@ -190,6 +190,7 @@ def convert_into_regex_pattern(dash_pattern: str) -> str:
     1) has the same length as the dash pattern;
     2) has letters from the dash pattern in the same positions;
     3) doesn't have these letters in any other position.
+    The pattern can then be used to filter the word list.
 
     :param dash_pattern: dash pattern to convert into regex
     :type: str
