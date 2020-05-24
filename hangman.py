@@ -95,7 +95,7 @@ def get_dash_pattern(
         prev_dash_pattern='',
         letter_to_disclose='') -> str:
     """Returns dash pattern based on the input from the user.
-    Validates the input it correct and provides hints if it is not correct.
+    Validates the input and provides hints if it is not correct.
 
     :param prev_dash_pattern: str
         (default is '')
