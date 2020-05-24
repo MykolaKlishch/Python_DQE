@@ -261,7 +261,8 @@ def main():
 
     The word list is filtered after each attempt to guess a letter,
     both successful and unsuccessful. So each next guess is based on
-    the recalculated probabilities.
+    the recalculated probabilities. Check guess_letter.__doc__ and
+    convert_into_regex_pattern.__doc__ for more details.
 
     :return: None
     """
@@ -273,6 +274,7 @@ def main():
           '\n    position(s) of this letter (e.g. -ss------).'
           "\n 4. If I didn't guess the letter, just enter"
           '\n    the same pattern again.\n')
+    print(convert_into_regex_pattern.__doc__)
     word_list = get_word_list()
     prev_dash_pattern, letter = '', ''
     attempts = {'successful': 0, 'unsuccessful': 0}
