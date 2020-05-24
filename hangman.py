@@ -232,7 +232,7 @@ def the_end(
     """
     # Unlike typical Hangman game, this implementation does not end the
     # game if the number of attempts exceeds 10. This feature was not
-    # implemented because words.txt contains 56 single-letter and 132
+    # implemented because words.txt contains 52 single-letter and 132
     # double-letter words. It may take more than 10 attempts to guess
     # such words no matter the algorithm (from 1 to 26 attempts for any
     # single-letter word). Even the prefect algorithm is no better in
