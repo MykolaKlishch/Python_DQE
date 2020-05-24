@@ -50,6 +50,10 @@ def guess_letter(
     """Returns the letter which appears in
     the largest number of words from word list.
 
+    The counter counts the number of words in which the letter appears,
+    not the total occurrences of the letter in all words.
+    Letters that already have been disclosed are ignored.
+
     :param word_list: a list of words
     :type word_list: Sequence[str]
     :param disclosed: letters to ignore (already guessed)
@@ -254,6 +258,10 @@ def the_end(
 
 def main():
     """Implements the game process.
+
+    The word list is filtered after each attempt to guess a letter,
+    both successful and unsuccessful. So each next guess is based on
+    the recalculated probabilities.
 
     :return: None
     """
