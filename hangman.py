@@ -209,7 +209,7 @@ def the_end(
     the respective output if one of the conditions is True.
 
     Game ends in the following cases:
-    0) word_list become empty after the last filtering (means there is
+    0) word_list became empty after the last filtering (means there is
        no word in words.txt that matches the pattern);
     1) a single word left in word_list - means that the word is guessed;
     2) only 2 words are left in words.txt and they differ just by
