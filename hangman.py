@@ -274,7 +274,6 @@ def main():
           '\n    position(s) of this letter (e.g. -ss------).'
           "\n 4. If I didn't guess the letter, just enter"
           '\n    the same pattern again.\n')
-    print(convert_into_regex_pattern.__doc__)
     word_list = get_word_list()
     prev_dash_pattern, letter = '', ''
     attempts = {'successful': 0, 'unsuccessful': 0}
