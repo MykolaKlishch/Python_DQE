@@ -208,6 +208,15 @@ def the_end(
     """Checks for conditions when the game ends and prints
     the respective output if one of the conditions is True.
 
+    Game ends in the following cases:
+    0) word_list become empty after the last filtering (means there is
+       no word in words.txt that matches the pattern);
+    1) a single word left in word_list - means that the word is guessed;
+    2) only 2 words are left in words.txt and they differ just by
+       letter case. There are 1620 such word pairs in words.txt file.
+    In all three cases, the function prints the number of attempts to
+    guess the letter (successful, unsuccessful, total).
+
     :param word_list: a list of words
     :type word_list: Sequence[str]
     :param attempts: number of attempts to guess a letter
@@ -216,6 +225,14 @@ def the_end(
     :return: is it the en of the game
     :rtype: bool
     """
+    # Unlike typical Hangman game, this implementation does not end the
+    # game if the number of attempts exceeds 10. This feature was not
+    # implemented because words.txt contains 56 single-letter and 132
+    # double-letter words. It may take more than 10 attempts to guess
+    # such words no matter the algorithm (from 1 to 26 attempts for any
+    # single-letter word). Even the prefect algorithm is no better in
+    # guessing these words than a random choice algorithm.
+
     words_left = len(word_list)
     if words_left == 0:
         print("I don't know any word that matches your pattern."
