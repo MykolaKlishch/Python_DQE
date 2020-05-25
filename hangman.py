@@ -164,10 +164,9 @@ def consistent(
     if len(dash_pattern) != len(prev_dash_pattern):
         return False
     for index in range(len(dash_pattern)):
-        if dash_pattern[index] != prev_dash_pattern[index] != '-':
-            return False
-        if (dash_pattern[index] in prev_dash_pattern
-                and prev_dash_pattern[index] != dash_pattern[index]):
+        if (dash_pattern[index] != prev_dash_pattern[index]
+            and (prev_dash_pattern[index] != '-'
+                 or dash_pattern[index] in prev_dash_pattern)):
             return False
     return True
 
