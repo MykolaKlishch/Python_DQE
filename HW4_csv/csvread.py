@@ -12,5 +12,3 @@ def get_namespace(args=None):
                         help="number or HRR to display")
     parsed_args = parser.parse_args(args)
     return parsed_args.path, parsed_args.top
-#lglkjb
-#jn'lkm
