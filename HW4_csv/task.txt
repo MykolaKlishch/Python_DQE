@@ -1,0 +1,22 @@
+Створити command-line application,n яка буде читати CSV файл
+(HRR Scorecard_ 20 _ 40 _ 60 - 20 Population.csv)
+по довільному шляху (аргумент -path)
+Знаходити у ньому стовбець «Total Hospital Beds»
+вичитувати всі значення з нього
+Знаходити у ньому стовбець «Available Hospital Beds»
+вичитувати всі значення з нього
+Вирахувати % вільних Hospital Beds та вивести HRR
+з найбільшим значенням % та сам процент також для
+тої кількості HRR яка буде вказана в аргументі -bed
+
+Приклад:
+
+python bed_hrr.py -path C:\Users\Dmytro_Yermolov\Desktop -bed 3
+
+Denver, CO 82.3%
+Allentown, PA 46.4%
+Iowa City, IA 37.4%
+
+Файл можна знайти за тим самим посиланням,
+що і код до попереднього завдання.
+Deadline – June, 2
