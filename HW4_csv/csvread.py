@@ -3,14 +3,11 @@ from a specified path. Calculate percentage of available hospital
 beds for all HRR. Display these percentages for a specified number
 of HRR where the percentages are the highest.
 """
-# todo: refactoring
-# todo: test with Japanese characters in path - encoding
-# todo: test
 
 import argparse
 import csv
 import os
-from typing import Tuple
+from typing import List, Tuple, Mapping
 
 FILENAME = "HRR Scorecard_ 20 _ 40 _ 60 - 20 Population.csv"
 
@@ -46,24 +43,28 @@ def get_args_from_cmd() -> Tuple[str, int]:
     return args.path, args.bed
 
 
-def _main():
+def transform_record(raw_record: Mapping[str, str]) -> Tuple[str, float]:
+    """Takes values from only three necessary fields
+    from a raw record. Transforms values and calculates
+    the fraction of available hospital beds.
+
+    :param raw_record: a full row from the table
+    :return: HRR, available beds (as a fraction)
+    """
+    return (raw_record["HRR"],
+            float(raw_record["Available Hospital Beds"].replace(",", ""))
+            / float(raw_record["Total Hospital Beds"].replace(",", "")))
+
+
+if __name__ == "__main__":
     path, number = get_args_from_cmd()
     file_path = os.path.join(path, FILENAME)
-    data = list(csv.reader(open(file_path, newline="")))
-    headers, junk_line = data.pop(0), data.pop(0)
+    reader = csv.DictReader(open(file_path, newline=""))
+    next(reader)  # skip second header line
+    data: List[Tuple[str, float]] = sorted(
+        map(transform_record, reader), key=lambda i: i[1], reverse=True)
     if number > len(data):
         print(f"Can't retrieve {number} records from the table.")
         print(f"There are only {len(data)} records in the file.")
         number = len(data)
-    data = list(map(lambda line: (
-        line[headers.index("HRR")],
-        float(line[headers.index("Available Hospital Beds")].replace(",", ""))
-        / float(line[headers.index("Total Hospital Beds")].replace(",", ""))
-    ), data))
-    data.sort(key=lambda item: item[1], reverse=True)
-    for record in data[:number]:
-        print(f"{record[0]:<30}{record[1]:<3.1%}")
-
-
-if __name__ == "__main__":
-    _main()
+    print(*map(lambda r: "{:<30}{:<3.1%}".format(*r), data[:number]), sep="\n")
