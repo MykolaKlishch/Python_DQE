@@ -2,32 +2,31 @@ import argparse
 import csv
 import os
 
-FILENAME = "HRR Scorecard_ 20 _ 40 _ 60 - 20 Population.csv"
 
+def from_cmd(filename):
 
-def valid_directory(directory):
-    if not os.path.isdir(directory):
-        raise argparse.ArgumentTypeError(
-            f"'{directory}' is not a name of an existing directory")
-    if not os.path.isfile(os.path.join(directory, FILENAME)):
-        raise argparse.ArgumentTypeError(
-            f"'{directory}' doesn't contain the required file")
-    return directory
+    def _valid_directory(directory):
+        if not os.path.isdir(directory):
+            raise argparse.ArgumentTypeError(
+                f"'{directory}' is not a name of an existing directory")
+        if not os.path.isfile(os.path.join(directory, filename)):
+            raise argparse.ArgumentTypeError(
+                f"'{directory}' doesn't contain the required file")
+        return directory
 
-
-def from_cmd():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-path", type=valid_directory, default=os.getcwd(),
+    parser.add_argument("-path", type=_valid_directory, default=os.getcwd(),
                         help="a directory with .csv file to be opened")
     parser.add_argument("-bed", type=int, default=5,
                         help="number or HRR to be displayed")
-    parsed_args = parser.parse_args()
-    return parsed_args.path, parsed_args.bed
+    args = parser.parse_args()
+    args.path = os.path.join(args.path, filename)
+    return args.path, args.bed
 
 
 def _main():
-    path, number = from_cmd()
-    file_path = os.path.join(path, FILENAME)
+    filename = "HRR Scorecard_ 20 _ 40 _ 60 - 20 Population.csv"
+    file_path, number = from_cmd(filename)
     data = list(csv.reader(open(file_path, newline="")))
     headers, junk_line = data.pop(0), data.pop(0)
     if number > len(data):
