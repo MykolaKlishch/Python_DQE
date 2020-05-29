@@ -1,6 +1,10 @@
 import argparse
 import csv
 import os
+try:
+    import pandas as pd
+except ImportError:
+    print("'pandas' module is missing!")
 
 
 def from_cmd(filename):
