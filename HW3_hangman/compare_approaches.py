@@ -75,7 +75,7 @@ def play_game(word_to_guess: str,
               word_list: Sequence[str]) -> Dict[str, int]:
     """Implements the game process (i.e. single iteration).
 
-    A simplified version of '_main()' from the 'hangman' module/
+    A simplified version of '_main()' from the 'hangman' module.
     The word list is filtered after each attempt to guess a letter,
     both successful and unsuccessful. So each next guess is based on
     the recalculated probabilities. Check guess_letter.__doc__ and
@@ -183,4 +183,4 @@ def play_iterated_game(start=0, stop=102305) -> None:
 # However, csv report is not affected by this in any way.
 
 if __name__ == "__main__":
-    play_iterated_game(start=1190)
+    play_iterated_game()
