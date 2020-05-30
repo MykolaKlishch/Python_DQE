@@ -144,8 +144,6 @@ def try_two_methods(word: str,
         'by_letter_count_missed': attempts_by_letter_count['unsuccessful'],
         'by_letter_count_total': sum(attempts_by_letter_count.values())
     }
-    for key in record.keys():
-        record[key]
     return record
 
 

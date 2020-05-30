@@ -1,0 +1,370 @@
+astor by_word_count
+s? -> -s---
+a? -> as---
+e? -> as---
+t? -> ast--
+r? -> ast-r
+o? -> astor
+guessed: Astor
+
+astor by_letter_count
+s? -> -s---
+a? -> as---
+e? -> as---
+t? -> ast--
+r? -> ast-r
+o? -> astor
+guessed: Astor
+
+astor's by_word_count
+s? -> -s----s
+a? -> as----s
+e? -> as----s
+'? -> as---'s
+o? -> as-o-'s
+t? -> asto-'s
+guessed: Astor's
+
+astor's by_letter_count
+e? -> -------
+s? -> -s----s
+a? -> as----s
+'? -> as---'s
+t? -> ast--'s
+guessed: Astor's
+
+astoria by_word_count
+s? -> -s-----
+a? -> as----a
+guessed: Astoria
+
+astoria by_letter_count
+e? -> -------
+s? -> -s-----
+a? -> as----a
+guessed: Astoria
+
+astoria's by_word_count
+s? -> -s------s
+a? -> as----a-s
+guessed: Astoria's
+
+astoria's by_letter_count
+s? -> -s------s
+e? -> -s------s
+a? -> as----a-s
+guessed: Astoria's
+
+astrakhan by_word_count
+s? -> -s-------
+a? -> as--a--a-
+guessed: astrakhan
+
+astrakhan by_letter_count
+s? -> -s-------
+a? -> as--a--a-
+guessed: astrakhan
+
+astrakhan's by_word_count
+s? -> -s--------s
+a? -> as--a--a--s
+guessed: astrakhan's
+
+astrakhan's by_letter_count
+s? -> -s--------s
+a? -> as--a--a--s
+guessed: astrakhan's
+
+astroturf by_word_count
+s? -> -s-------
+a? -> as-------
+t? -> ast--t---
+guessed: AstroTurf
+
+astroturf by_letter_count
+s? -> -s-------
+a? -> as-------
+n? -> as-------
+t? -> ast--t---
+guessed: AstroTurf
+
+astroturf's by_word_count
+s? -> -s--------s
+a? -> as--------s
+t? -> ast--t----s
+guessed: AstroTurf's
+
+astroturf's by_letter_count
+s? -> -s--------s
+a? -> as--------s
+t? -> ast--t----s
+guessed: AstroTurf's
+
+asturias by_word_count
+s? -> -s-----s
+'? -> -s-----s
+a? -> as----as
+guessed: Asturias
+
+asturias by_letter_count
+s? -> -s-----s
+e? -> -s-----s
+a? -> as----as
+guessed: Asturias
+
+asturias's by_word_count
+s? -> -s-----s-s
+guessed: Asturias's
+
+asturias's by_letter_count
+s? -> -s-----s-s
+guessed: Asturias's
+
+asunci?n by_word_count
+s? -> -s------
+a? -> as------
+i? -> as---i--
+u? -> asu--i--
+guessed: Asunci?n
+
+asunci?n by_letter_count
+s? -> -s------
+e? -> -s------
+i? -> -s---i--
+n? -> -s-n-i-n
+guessed: Asunci?n
+
+asunci?n's by_word_count
+s? -> -s-------s
+a? -> as-------s
+i? -> as---i---s
+'? -> as---i--'s
+u? -> asu--i--'s
+guessed: Asunci?n's
+
+asunci?n's by_letter_count
+s? -> -s-------s
+a? -> as-------s
+e? -> as-------s
+guessed: Asunci?n's
+
+aswan by_word_count
+s? -> -s---
+a? -> as-a-
+guessed: Aswan
+
+aswan by_letter_count
+s? -> -s---
+a? -> as-a-
+guessed: Aswan
+
+aswan's by_word_count
+s? -> -s----s
+a? -> as-a--s
+guessed: Aswan's
+
+aswan's by_letter_count
+e? -> -------
+s? -> -s----s
+a? -> as-a--s
+guessed: Aswan's
+
+atacama by_word_count
+s? -> -------
+e? -> -------
+i? -> -------
+a? -> a-a-a-a
+guessed: Atacama
+
+atacama by_letter_count
+e? -> -------
+s? -> -------
+i? -> -------
+a? -> a-a-a-a
+guessed: Atacama
+
+atacama's by_word_count
+s? -> --------s
+e? -> --------s
+a? -> a-a-a-a-s
+guessed: Atacama's
+
+atacama's by_letter_count
+s? -> --------s
+e? -> --------s
+a? -> a-a-a-a-s
+guessed: Atacama's
+
+atahualpa by_word_count
+s? -> ---------
+e? -> ---------
+i? -> ---------
+a? -> a-a--a--a
+guessed: Atahualpa
+
+atahualpa by_letter_count
+s? -> ---------
+e? -> ---------
+i? -> ---------
+a? -> a-a--a--a
+guessed: Atahualpa
+
+atahualpa's by_word_count
+s? -> ----------s
+e? -> ----------s
+'? -> ---------'s
+a? -> a-a--a--a's
+guessed: Atahualpa's
+
+atahualpa's by_letter_count
+s? -> ----------s
+e? -> ----------s
+a? -> a-a--a--a-s
+guessed: Atahualpa's
+
+atalanta by_word_count
+s? -> --------
+e? -> --------
+i? -> --------
+a? -> a-a-a--a
+guessed: Atalanta
+
+atalanta by_letter_count
+s? -> --------
+e? -> --------
+i? -> --------
+a? -> a-a-a--a
+guessed: Atalanta
+
+atalanta's by_word_count
+s? -> ---------s
+e? -> ---------s
+a? -> a-a-a--a-s
+guessed: Atalanta's
+
+atalanta's by_letter_count
+s? -> ---------s
+e? -> ---------s
+a? -> a-a-a--a-s
+guessed: Atalanta's
+
+atari by_word_count
+s? -> -----
+e? -> -----
+a? -> a-a--
+t? -> ata--
+guessed: Atari
+
+atari by_letter_count
+s? -> -----
+e? -> -----
+a? -> a-a--
+t? -> ata--
+guessed: Atari
+
+atari's by_word_count
+s? -> ------s
+e? -> ------s
+'? -> -----'s
+a? -> a-a--'s
+r? -> a-ar-'s
+t? -> atar-'s
+guessed: Atari's
+
+atari's by_letter_count
+e? -> -------
+s? -> ------s
+a? -> a-a---s
+'? -> a-a--'s
+r? -> a-ar-'s
+t? -> atar-'s
+guessed: Atari's
+
+atat?rk by_word_count
+s? -> -------
+e? -> -------
+i? -> -------
+a? -> a-a----
+o? -> a-a----
+r? -> a-a--r-
+guessed: Atat?rk
+
+atat?rk by_letter_count
+e? -> -------
+s? -> -------
+i? -> -------
+a? -> a-a----
+t? -> atat---
+guessed: Atat?rk
+
+atat?rk's by_word_count
+s? -> --------s
+e? -> --------s
+a? -> a-a-----s
+r? -> a-a--r--s
+guessed: Atat?rk's
+
+atat?rk's by_letter_count
+s? -> --------s
+e? -> --------s
+a? -> a-a-----s
+t? -> atat----s
+guessed: Atat?rk's
+
+athabasca by_word_count
+s? -> ------s--
+o? -> ------s--
+a? -> a--a-as-a
+guessed: Athabasca
+
+athabasca by_letter_count
+s? -> ------s--
+e? -> ------s--
+o? -> ------s--
+a? -> a--a-as-a
+guessed: Athabasca
+
+athabasca's by_word_count
+s? -> ------s---s
+e? -> ------s---s
+i? -> ------s---s
+a? -> a--a-as-a-s
+guessed: Athabasca's
+
+athabasca's by_letter_count
+s? -> ------s---s
+e? -> ------s---s
+i? -> ------s---s
+a? -> a--a-as-a-s
+guessed: Athabasca's
+
+athabascan by_word_count
+s? -> ------s---
+i? -> ------s---
+e? -> ------s---
+a? -> a--a-as-a-
+guessed: Athabascan
+
+athabascan by_letter_count
+s? -> ------s---
+e? -> ------s---
+i? -> ------s---
+a? -> a--a-as-a-
+guessed: Athabascan
+
+athabascan's by_word_count
+s? -> ------s----s
+'? -> ------s---'s
+e? -> ------s---'s
+n? -> ------s--n's
+a? -> a--a-as-an's
+guessed: Athabascan's
+
+athabascan's by_letter_count
+s? -> ------s----s
+e? -> ------s----s
+o? -> ------s----s
+a? -> a--a-as-a--s
+guessed: Athabascan's
+
+athena by_word_count
