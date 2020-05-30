@@ -45,8 +45,8 @@ def get_args_from_cmd() -> Tuple[str, int]:
 
 def transform_record(raw_record: Mapping[str, str]) -> Tuple[str, float]:
     """Takes values from only three necessary fields
-    from a raw record. Transforms values and calculates
-    the fraction of available hospital beds.
+    from a raw record. Transforms the values and
+    calculates the fraction of available hospital beds.
 
     :param raw_record: a full row from the table
     :return: HRR, available beds (as a fraction)
