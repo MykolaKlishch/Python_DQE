@@ -65,7 +65,7 @@ def guess_letter(
     letters = collections.Counter(itertools.chain.from_iterable(
         (set(word.lower()) - disclosed for word in word_list)))
     if letters:
-        # print_statistics(word_list, letters)  # uncomment after the test!!!
+        print_statistics(word_list, letters)  # uncomment after the test!!!
         return letters.most_common(1)[0][0]
 
 
