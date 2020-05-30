@@ -23,11 +23,7 @@ def enter_and_validate_filename():
 
 if __name__ == "__main__":
     filename = enter_and_validate_filename()
-    df = pd.read_csv(
-        filepath_or_buffer=filename,
-        encoding="utf-8",
-        index_col="word"
-    )
+    df = pd.read_csv(filename, encoding="utf-8", index_col="word")
     df_avgs = df.mean(axis=0)
     print(df_avgs)
     print(ttest_ind(df["by_word_count_total"],
