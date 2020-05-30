@@ -1,4 +1,5 @@
-"""This script tests two ways to guess next letter in Hangman game:
+"""This script tests two ways to guess next letter in
+Hangman game and creates a csv report with obtained dataset:
 
 ===:Approaches/methods/ways:===
  1. Return the the MOST FREQUENT LETTER
@@ -28,7 +29,7 @@
     102305 words from words.txt file (must reside in current directory).
 
 ===:Metrics collected:===
-    Successfull, unsuccessful and total attempts to guess a letter
+    Successful, unsuccessful and total attempts to guess a letter
     before the word is guessed * for 2 approaches * for each of 102305 words.
 
 ===:Report:===
@@ -40,6 +41,7 @@ import collections
 import itertools
 import csv
 import os
+import datetime
 from typing import AbstractSet, Callable, Dict, Sequence
 from hangman import get_word_list, filter_word_list, \
     disclosed_letters, convert_into_regex_pattern, \
@@ -147,11 +149,22 @@ def try_two_methods(word: str,
     return record
 
 
+def create_abs_filename():
+    """Generates absolute filename for the report file.
+    Filename contains timestamp to avoid accidental overwriting.
+    """
+    timestamp = str(datetime.datetime.today())
+    timestamp = timestamp.replace(" ", "_").replace(":", "-")
+    filename = f'report_{timestamp}.csv'
+    abs_filename = os.path.join(os.getcwd(), filename)
+    return abs_filename
+
+
 def play_iterated_game(start=0, stop=102305) -> None:
     """Guess every word from the word list
-    and record the numbers of all attempts.
-    Instead of the full word list, only part of it may be used.
-    To do this, start and/or stop parameters must be specified.
+    and record the numbers of all attempts in the csv report.
+    If start and/or stop parameters are be specified,
+    only part of it may be used.
 
     :param start: index to start.
     :param stop: index to stop.
@@ -159,8 +172,8 @@ def play_iterated_game(start=0, stop=102305) -> None:
     """
     word_list = get_word_list()[start:stop]
     first_record = try_two_methods(word_list[0], word_list)
-    file_path = os.path.join(os.getcwd(), 'attempts_by_approach.csv')
-    csv_file = open(file_path, 'w', encoding='utf-8', newline='')
+    csv_file = open(create_abs_filename(), 'w',
+                    encoding='utf-8', newline='')
     writer = csv.DictWriter(csv_file, dialect='excel',
                             fieldnames=first_record.keys())
     writer.writeheader()
@@ -177,10 +190,9 @@ def play_iterated_game(start=0, stop=102305) -> None:
         print("csv file successfully closed")
 
 
-# Tf 'print_statistics(word_list, letters)' line
-# in 'hangman' module remain uncommented, the log is produced with
+# If 'print_statistics(word_list, letters)' line
+# in 'hangman' module remain uncommented, the log is printed with
 # additional information which might be unnecessary for this test.
 # However, csv report is not affected by this in any way.
-
 if __name__ == "__main__":
     play_iterated_game()
