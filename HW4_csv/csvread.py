@@ -59,7 +59,7 @@ def transform_record(raw_record: Mapping[str, str]) -> Tuple[str, float]:
 if __name__ == "__main__":
     path, number = get_args_from_cmd()
     file_path = os.path.join(path, FILENAME)
-    reader = csv.DictReader(open(file_path, newline=""))
+    reader = csv.DictReader(open(file_path, encoding='utf-8', newline=""))
     next(reader)  # skip second header line
     data: List[Tuple[str, float]] = sorted(
         map(transform_record, reader), key=lambda i: i[1], reverse=True)
