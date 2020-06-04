@@ -1,7 +1,8 @@
 """Read 'user_details.csv' file from a specified path.
 Remove sensitive information from the obtained user data.
 Convert data to JSON format, pretty-print it and save
-into JSON file under the specified name and path."""
+into JSON file under the specified name and path.
+"""
 
 import argparse
 import csv
@@ -47,11 +48,11 @@ def _valid_directory_with_csv(directory: str) -> str:
 
 
 def _valid_filename(filename: str) -> str:
-    """Used for validation of the command line argument -json
+    """Used for validation of the command line argument -json.
 
     :param filename: -json argument value
     :raise ArgumentTypeError: if the file name contains forbidden
-           characters or the filename is is absolute but
+           characters or the filename is absolute but
            the specified directory does not exist.
     """
     directory, rel_filename = os.path.split(filename)
@@ -60,7 +61,7 @@ def _valid_filename(filename: str) -> str:
             f"'{directory}' is not a name of an existing directory")
     if _contains_forbidden_symbols(rel_filename):
         raise argparse.ArgumentTypeError(
-            f"'{rel_filename}' contains forbidden symbols")
+            f"'{rel_filename}' contains forbidden characters")
     return filename
 
 
@@ -77,7 +78,7 @@ def _contains_forbidden_symbols(filename: str) -> bool:
 
 def make_records_safe(sensitive_records: Iterable[Dict[str, str]]
                       ) -> List[Dict[str, str]]:
-    """Remove sensitive information from all records in the iterable
+    """Remove sensitive information from all records in the iterable.
 
     :param sensitive_records: records that may contain passwords
     :return: records without sensitive information
@@ -88,8 +89,8 @@ def make_records_safe(sensitive_records: Iterable[Dict[str, str]]
 def remove_password_from_record(record: Dict[str, str]) -> Dict[str, str]:
     """Remove password from the record.
 
-    :param record: a record that may contain 'password' key
-    :return: a record without a 'password' key
+    :param record: a record that may contain 'password' key;
+    :return: a record without a 'password' key.
     """
     if "password" in record.keys():
         del record["password"]
