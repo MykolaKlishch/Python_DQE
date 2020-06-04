@@ -1,7 +1,7 @@
 """Read 'user_details.csv' file from a specified path.
 Remove sensitive information from the obtained user data.
-Convert data to json format, pretty-print it and save
-into json file under the specified name and path."""
+Convert data to JSON format, pretty-print it and save
+into JSON file under the specified name and path."""
 
 import argparse
 import csv
@@ -21,16 +21,16 @@ def get_args_from_cmd() -> Tuple[str, str]:
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "-csv", type=valid_directory_with_csv, default=os.getcwd(),
+        "-csv", type=_valid_directory_with_csv, default=os.getcwd(),
         help="a directory with .csv file to be opened")
     parser.add_argument(
-        "-json", type=in_valid_directory, default="user_details.json",
+        "-json", type=_valid_filename, default="user_details.json",
         help="absolute or relative filename of .json dump file")
     args = parser.parse_args()
     return args.csv, args.json
 
 
-def valid_directory_with_csv(directory: str) -> str:
+def _valid_directory_with_csv(directory: str) -> str:
     """Used for validation of the command line argument -csv.
 
     :param directory: -csv argument value
@@ -46,19 +46,33 @@ def valid_directory_with_csv(directory: str) -> str:
     return directory
 
 
-def in_valid_directory(filename: str) -> str:
+def _valid_filename(filename: str) -> str:
     """Used for validation of the command line argument -json
 
     :param filename: -json argument value
-    :raise ArgumentTypeError: if the file name is absolute but
+    :raise ArgumentTypeError: if the file name contains forbidden
+           characters or the filename is is absolute but
            the specified directory does not exist.
     """
-    if os.path.isabs(filename):
-        directory, rel_filename = os.path.split(filename)
-        if not os.path.isdir(directory):
-            raise argparse.ArgumentTypeError(
-                f"'{directory}' is not a name of an existing directory")
+    directory, rel_filename = os.path.split(filename)
+    if os.path.isabs(filename) and not os.path.isdir(directory):
+        raise argparse.ArgumentTypeError(
+            f"'{directory}' is not a name of an existing directory")
+    if _contains_forbidden_symbols(rel_filename):
+        raise argparse.ArgumentTypeError(
+            f"'{rel_filename}' contains forbidden symbols")
     return filename
+
+
+def _contains_forbidden_symbols(filename: str) -> bool:
+    """Check whether the file name contains any forbidden symbols.
+    Differences between Windows and Linux are taken into account.
+
+    :param filename: relative filename
+    :return: if the filename contains forbidden symbols or not
+    """
+    forbidden_symbols = '\0/' + r'\:*?<>|'*(os.name == "nt")
+    return bool(set(filename).intersection(set(forbidden_symbols)))
 
 
 def make_records_safe(sensitive_records: Iterable[Dict[str, str]]
