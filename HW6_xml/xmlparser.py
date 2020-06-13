@@ -13,6 +13,13 @@ def get_government(country):
 
 def main():
     countries = parse_and_remove("mondial-3.0.xml", "country")
+
+    import sys
+    print(sys.getsizeof(iterparse("mondial-3.0.xml")))
+    print(sys.getsizeof(parse_and_remove("mondial-3.0.xml", "country")))
+    print(sys.getsizeof(countries))
+    print(sys.getsizeof(set(map(get_government, countries))))
+
     governments = set(map(get_government, countries))
     print(*sorted(governments), sep=", ")
 
