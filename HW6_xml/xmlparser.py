@@ -1,11 +1,10 @@
-import xml.etree.ElementTree as et
+from xml.etree.ElementTree import iterparse
 
 
-def parse_and_remove(filename, element_tag):
-    doc = et.iterparse(filename, ('start', 'end'))
-    for event, elem in doc:
-        if elem.tag == element_tag:
-            yield elem
+def parse_and_remove(filename, target_tag):
+    for event, element in iterparse(filename):
+        if element.tag == target_tag:
+            yield element
 
 
 def get_government(country):
