@@ -1,10 +1,10 @@
 import time
 import numpy as np
-from xmlparser import main
+from xmlparser_the_fastest import main
 
 
 time_logs = []
-for i in range(10):
+for i in range(100):
     start_time = time.time()
     main()
     time_logs.append(time.time() - start_time)
