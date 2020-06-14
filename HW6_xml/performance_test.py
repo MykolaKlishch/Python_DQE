@@ -1,6 +1,6 @@
 import time
 import numpy as np
-from xmlparser2 import parse_and_print
+from xmlparser import parse_and_print
 
 
 time_logs = []
