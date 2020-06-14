@@ -1,12 +1,12 @@
 import time
 import numpy as np
-from xmlparser_the_fastest import main
+from xmlparser2 import parse_and_print
 
 
 time_logs = []
 for i in range(100):
     start_time = time.time()
-    main()
+    parse_and_print()
     time_logs.append(time.time() - start_time)
 for exec_time in time_logs:
     print(f"--- {exec_time} seconds ---")

@@ -11,11 +11,11 @@ def get_government(country):
     return country.attrib['government'].strip()
 
 
-def main():
+def parse_and_print():
     countries = parse_and_remove("mondial-3.0.xml", "country")
     governments = set(map(get_government, countries))
     print(*sorted(governments), sep=", ")
 
 
 if __name__ == "__main__":
-    main()
+    parse_and_print()
