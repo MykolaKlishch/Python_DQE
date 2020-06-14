@@ -17,7 +17,7 @@ def is_country(element: ET.Element) -> bool:
 
 
 def has_long_name(country: ET.Element) -> bool:
-    return bool(re.match(r"^(\w+\s)+\w+$", country.attrib['name']))
+    return bool(re.match(r"^(?:\w+\s)+\w+$", country.attrib['name']))
 
 
 def get_government(country: ET.Element) -> str:
