@@ -8,7 +8,7 @@ from xml.etree import ElementTree as ET
 
 def parse_and_remove(filename: str, target_tag: str) -> \
         Generator[ET.Element, ET.Element, NoReturn]:
-    """Generator of 'country' elements from an XML file.
+    """Generator that yields specific elements from an XML file.
 
     :param filename: a file to be parsed
     :param target_tag: only elements with this tag will be yielded
