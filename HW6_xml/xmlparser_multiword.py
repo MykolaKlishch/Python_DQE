@@ -1,3 +1,8 @@
+"""Parse xml document 'mondial-3.0.xml' and print all
+types of governments that are mentioned in this file
+for countries with multiword names.
+"""
+
 import re
 from typing import Tuple
 from xml.etree import ElementTree as ET
@@ -12,12 +17,11 @@ def is_country(element: ET.Element) -> bool:
 
 
 def has_long_name(country: ET.Element) -> bool:
-    compiled_long_name_pattern = re.compile(r"^(\w+\s)+\w+$")
-    return bool(compiled_long_name_pattern.match(country.attrib['name']))
+    return bool(re.match(r"^(\w+\s)+\w+$", country.attrib['name']))
 
 
 def get_government(country: ET.Element) -> str:
-    return country.attrib['government'].strip()
+    return country.attrib["government"].strip()
 
 
 def parse_and_print():
