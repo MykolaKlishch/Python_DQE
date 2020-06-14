@@ -1,5 +1,5 @@
 """Parse xml document 'mondial-3.0.xml' and print all
-types of governments that are mentioned in this file
+types of government that are mentioned in this file
 for countries with multiword names.
 """
 
