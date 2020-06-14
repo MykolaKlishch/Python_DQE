@@ -1,13 +1,15 @@
-from xml.etree.ElementTree import iterparse
+from typing import Generator, NoReturn
+from xml.etree import ElementTree as ET
 
 
-def parse_and_remove(filename, target_tag):
-    for event, element in iterparse(filename):
+def parse_and_remove(filename: str, target_tag: str) -> \
+        Generator[ET.Element, ET.Element, NoReturn]:
+    for event, element in ET.iterparse(filename):
         if element.tag == target_tag:
             yield element
 
 
-def get_government(country):
+def get_government(country: ET.Element) -> str:
     return country.attrib['government'].strip()
 
 

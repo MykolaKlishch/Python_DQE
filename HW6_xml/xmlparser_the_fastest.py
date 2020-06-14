@@ -1,12 +1,12 @@
-from xml.etree import ElementTree as et
+from xml.etree import ElementTree as ET
 
 
-def get_government(country):
+def get_government(country: ET.Element) -> str:
     return country.attrib['government'].strip()
 
 
 def parse_and_print():
-    countries = et.parse("mondial-3.0.xml").getroot().iter("country")
+    countries = ET.parse("mondial-3.0.xml").getroot().iter("country")
     governments = set(map(get_government, countries))
     print(*sorted(governments), sep=", ")
 

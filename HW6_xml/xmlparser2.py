@@ -1,21 +1,22 @@
 import re
+from typing import Tuple
 from xml.etree import ElementTree as ET
 
 
-def get_element(event_element_pair):
+def get_element(event_element_pair: Tuple[str, ET.Element]) -> ET.Element:
     return event_element_pair[1]
 
 
-def is_country(element):
+def is_country(element: ET.Element) -> bool:
     return element.tag == "country"
 
 
-def has_long_name(country):
+def has_long_name(country: ET.Element) -> bool:
     compiled_long_name_pattern = re.compile(r"^(\w+\s)+\w+$")
-    return compiled_long_name_pattern.match(country.attrib['name'])
+    return bool(compiled_long_name_pattern.match(country.attrib['name']))
 
 
-def get_government(country):
+def get_government(country: ET.Element) -> str:
     return country.attrib['government'].strip()
 
 
