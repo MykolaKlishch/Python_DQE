@@ -5,6 +5,7 @@ def notfound_404(environ, start_response):
     start_response('404 Not Found', [('Content-type', 'text/plain')])
     return [b'Not Found']
 
+
 _hello_resp = (
                '    <html>\n'
                '        <head>\n'
@@ -33,18 +34,29 @@ _localtime_resp = ('<?xml version="1.0"?>\n'
                    '            <second>{t.tm_sec}</second>\n'
                    '        </time>')
 
-#html code to display image in browser
-_img_resp =('<html xmlns="http://www.w3.org/1999/xhtml">\n'
-                   '        <head>\n'
-                   '            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n'
-                   '            <title>Image to server</title>\n'
-                   '            <link rel="stylesheet" type="text/css" href="css/style.css" media="screen" />\n'
-                   '            </head>\n'
-                   '            <body>\n'
-                   '            <img src="{img_net}" alt="Image to server" />\n'
-                   '       </body></html>')
 
 def localtime(environ, start_response):
     start_response('200 OK', [('Content-type', 'application/xml')])
     resp = _localtime_resp.format(t=time.localtime())
+    yield resp.encode('utf-8')
+
+
+_img_resp = (  #html code to display image in browser
+    '<html xmlns="http://www.w3.org/1999/xhtml">\n'
+    '    <head>\n'
+    '        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n'
+    '        <title>Image to server</title>\n'
+    '        <link rel="stylesheet" type="text/css" href="css/style.css" media="screen" />\n'
+    '    </head>\n'
+    '    <body>\n'
+    '        <img src="{img_net}" alt="Image to server"/>\n'
+    '    </body>\n'
+    '</html>'
+)
+
+
+def image(environ, start_response):
+    """Show web page with image from external resource."""
+    start_response('200 OK', [('Content-type', 'text/html')])
+    resp = _img_resp.format(img_net="https://ae01.alicdn.com/kf/HTB1Ye49KFXXXXXfXXXXq6xXFXXXH/Single-opeth-laptop-stickers-speaker.jpg")
     yield resp.encode('utf-8')

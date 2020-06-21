@@ -1,13 +1,14 @@
 import cgi
 from wsgiref.simple_server import make_server
 from functools import partial
-from resttest import hello_world, localtime, notfound_404
+from resttest import hello_world, localtime, notfound_404, image
 
 
 routes = [
     ('get', '/hello', hello_world),
     ('get', '/localtime', localtime),
-    ]
+    ('get', '/img', image),  # new route
+]
 
 
 def dispatch(routes, default_route, environ, start_response):
@@ -38,4 +39,8 @@ if __name__ == '__main__':
     httpd = make_server('', 8080, dispatcher)
     print('Serving on port 8080...')
     httpd.serve_forever()
-# http://localhost:8080/hello&
+
+# http://localhost:8080/hello
+# http://localhost:8080/localtime
+# http://localhost:8080/img
+
