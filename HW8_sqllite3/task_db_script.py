@@ -53,7 +53,7 @@ def execute_query_with_output(cursor: sqlite3.Cursor) -> NoReturn:
 
 def pretty_print_table(
         headers: Iterable[str],
-        records: Iterable[Iterable[Union[str, int]]]):
+        records: Iterable[Iterable[Union[str, int]]]) -> NoReturn:
 
     def _align_fields(column: Iterable[Any]) -> Iterable[str]:
 
@@ -100,7 +100,8 @@ if __name__ == "__main__":
 
     insertion_commands = {
         "projects_tbl.csv": "INSERT INTO projects_tbl VALUES (?, ?, ?, ?);",
-        "tasks_tbl.csv": "INSERT INTO tasks_tbl VALUES (?, ?, ?, ?, ?, ?, ?);", }
+        "tasks_tbl.csv": "INSERT INTO tasks_tbl VALUES (?, ?, ?, ?, ?, ?, ?);",
+    }
     ensure_that_files_exist(*insertion_commands.keys())
 
     conn = sqlite3.connect("task_db.sqlite3")
