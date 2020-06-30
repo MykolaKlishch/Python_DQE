@@ -91,17 +91,17 @@ class CursorForProjectsDB(sqlite3.Cursor):
         return """\nPlease enter SQL query and press double Enter.
         * Both inline and multiline queries are supported.
         * Use double Enter to execute your query.
-        * You can execute next query after successful
-          execution of the previous one (only one query at a time).
+        * You can execute next query only after successful
+          execution of the previous one (one query at a time).
         * Use single Enter to type multiline queries.
           After pressing Enter, the line is saved.
           Any edits of this line will be discarded.
-        * You may type your own queries or start with
+        * You may type your own query or start with
           the examples to explore the data set.
         * To quit, press Enter without input.
         \nExamples:
-        \033[36mSELECT * FROM tasks_tbl;
-        \033[34mSELECT * FROM projects_tbl;
+        \033[36mSELECT * FROM projects_tbl;
+        \033[34mSELECT * FROM tasks_tbl;
         \033[36mSELECT * FROM tasks_tbl WHERE project_id = 400;
         \033[34mSELECT p.name AS ProjectName, COUNT(*) AS NumberOfTasks
         FROM tasks_tbl t INNER JOIN projects_tbl p
