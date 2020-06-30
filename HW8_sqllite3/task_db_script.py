@@ -28,28 +28,39 @@ import sys
 from typing import Any, Iterable, NoReturn, Union
 
 
-def get_and_execute_user_query(cursor: sqlite3.Cursor) -> NoReturn:
-    """Gets a query from the user and executes it.
-    Raises exception if the query is invalid.
+def get_query(cursor: sqlite3.Cursor) -> NoReturn:
+    """Generator which gets queries from stdin.
+    Queries are NOT validated at this stage.
 
     :param cursor: cursor object to execute a query.
     """
     print("\nEnter your query below and press Enter twice to execute it:")
-    query = ""
+    new_query = ""
     while True:
         new_query_line = next(sys.stdin)
         if new_query_line.isspace():
             break
-        query += new_query_line
-    if not query:
-        print("No query was detected", end="")
-        cursor.close()
-        exit()
-    yield query
-    cursor.execute(query)
+        new_query += new_query_line
+    if not new_query:
+        close_with_message_and_exit(cursor, "No query was detected")
+    yield new_query
 
 
-def pretty_print_response(headers: Iterable[str],
+def close_with_message_and_exit(
+        cursor: sqlite3.Cursor,
+        message="") -> NoReturn:
+    """Prints message, closes the cursor and exits
+
+    :param cursor: sqlite cursor to close
+    :param message: message to print before exit
+    """
+    print(message, end="")
+    cursor.close()
+    exit()
+
+
+def pretty_print_response(
+        headers: Iterable[str],
         records: Iterable[Iterable[Union[str, int]]]) -> NoReturn:
     """Prints response as a table. Automatically detects column width.
 
@@ -108,7 +119,8 @@ if __name__ == "__main__":
     # Only ? placeholders are used.
     INSERTION_COMMANDS = {
         "projects_tbl.csv": "INSERT INTO projects_tbl VALUES (?, ?, ?, ?);",
-        "tasks_tbl.csv": "INSERT INTO tasks_tbl VALUES (?, ?, ?, ?, ?, ?, ?);", }
+        "tasks_tbl.csv": "INSERT INTO tasks_tbl VALUES (?, ?, ?, ?, ?, ?, ?);"
+    }
 
     # 1. Create database and tables
     conn = sqlite3.connect("task_db.sqlite3")
@@ -118,9 +130,7 @@ if __name__ == "__main__":
     # 2. Read data from csv files and insert them into tables
     for filename in INSERTION_COMMANDS.keys():
         if not os.path.exists(filename):
-            print(f"Could not find file '{filename}'!")
-            cur.close()
-            exit()
+            close_with_message_and_exit(cur, f"Could not find '{filename}'!")
         reader = csv.reader(open(filename, encoding='utf-8-sig', newline=""))
         # 'utf-8-sig' can handle '\ufeff' character
         next(reader)
@@ -147,7 +157,9 @@ if __name__ == "__main__":
     ON t.project_id = p.project_id
     GROUP BY p.name;\033[0m""")
     while True:
-        get_and_execute_user_query(cur)
+        query = next(get_query(cur))
+        cur.execute(query)
         pretty_print_response(
             headers=[description[0] for description in cur.description],
-            records=cur.fetchall())
+            records=cur.fetchall()
+        )
