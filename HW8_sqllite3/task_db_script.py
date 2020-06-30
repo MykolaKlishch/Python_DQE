@@ -28,11 +28,30 @@ import sys
 from typing import Any, Iterable, NoReturn, Union
 
 
+def import_data_into_database(cursor: sqlite3.Cursor) -> NoReturn:
+    """Reads data from csv files and inserts them into tables.
+    Can handle '\ufeff' character in csv files because it uses
+    'utf-8-sig' encoding which ignores '\ufeff' ('utf-8' does not).
+
+    :param cursor: sqlite3 cursor object to execute statements.
+    """
+    INSERTION_COMMANDS = {
+        "projects_tbl.csv": "INSERT INTO projects_tbl VALUES (?, ?, ?, ?);",
+        "tasks_tbl.csv": "INSERT INTO tasks_tbl VALUES (?, ?, ?, ?, ?, ?, ?);"
+    }
+    for filename in INSERTION_COMMANDS.keys():
+        if not os.path.exists(filename):
+            close_with_message_and_exit(cursor, f"Could not find '{filename}'!")
+        reader = csv.reader(open(filename, encoding='utf-8-sig', newline=""))
+        next(reader)
+        cursor.executemany(INSERTION_COMMANDS.get(filename), reader)
+
+
 def get_query(cursor: sqlite3.Cursor) -> NoReturn:
     """Generator which gets queries from stdin.
     Queries are NOT validated at this stage.
 
-    :param cursor: cursor object to execute a query.
+    :param cursor: sqlite3 cursor object.
     """
     print("\nEnter your query below and press Enter twice to execute it:")
     new_query = ""
@@ -51,12 +70,45 @@ def close_with_message_and_exit(
         message="") -> NoReturn:
     """Prints message, closes the cursor and exits
 
-    :param cursor: sqlite cursor to close
+    :param cursor: sqlite3 cursor object to be closed
     :param message: message to print before exit
     """
     print(message, end="")
     cursor.close()
     exit()
+
+
+def execute_user_queries(cursor: sqlite3.Cursor) -> NoReturn:
+    """Get query from the user, execute it and print the response.
+
+        :param cursor: sqlite3 cursor object to execute queries.
+    """
+    print("""\nPlease enter SQL query and press double Enter.
+    * Both inline and multiline queries are supported.
+    * Use single Enter to type multiline queries.
+      After pressing Enter, the line is saved.
+      Any edits of this line will be discarded.
+    * Use double Enter to execute your query.
+    * You can execute next query after successful
+      execution of the previous one (only one query at a time).
+    * You may type your own queries or start with
+      the examples to explore the dateset.
+    * To quit, press Enter without input.
+    \nExamples:
+    \033[36mSELECT * FROM tasks_tbl;
+    \033[34mSELECT * FROM projects_tbl;
+    \033[36mSELECT * FROM tasks_tbl WHERE project_id = 400;
+    \033[34mSELECT p.name AS ProjectName, COUNT(*) AS NumberOfTasks
+    FROM tasks_tbl t INNER JOIN projects_tbl p
+    ON t.project_id = p.project_id
+    GROUP BY p.name;\033[0m""")
+    while True:
+        query = next(get_query(cursor))
+        cursor.execute(query)
+        pretty_print_response(
+            headers=[description[0] for description in cursor.description],
+            records=cursor.fetchall()
+        )
 
 
 def pretty_print_response(
@@ -67,12 +119,10 @@ def pretty_print_response(
     :param headers: headers from recent selection
     :param records: response fetched from a cursor
     """
-
     def _align_fields(column: Iterable[Any]) -> Iterable[str]:
         """Transforms all values in the column
         into str type and unifies their length.
         """
-
         def _align_cell(field: str) -> str:
             return f"{field: ^{width}}"
 
@@ -117,49 +167,9 @@ if __name__ == "__main__":
     # Most names are hardcoded because formatting sql queries
     # is not safe due to potential SQL injections.
     # Only ? placeholders are used.
-    INSERTION_COMMANDS = {
-        "projects_tbl.csv": "INSERT INTO projects_tbl VALUES (?, ?, ?, ?);",
-        "tasks_tbl.csv": "INSERT INTO tasks_tbl VALUES (?, ?, ?, ?, ?, ?, ?);"
-    }
 
-    # 1. Create database and tables
     conn = sqlite3.connect("task_db.sqlite3")
     cur = conn.cursor()
     cur.executescript(INITIALIZATION_SQL_SCRIPT)
-
-    # 2. Read data from csv files and insert them into tables
-    for filename in INSERTION_COMMANDS.keys():
-        if not os.path.exists(filename):
-            close_with_message_and_exit(cur, f"Could not find '{filename}'!")
-        reader = csv.reader(open(filename, encoding='utf-8-sig', newline=""))
-        # 'utf-8-sig' can handle '\ufeff' character
-        next(reader)
-        cur.executemany(INSERTION_COMMANDS.get(filename), reader)
-
-    # 3. Get query from the user, execute the query and print the response
-    print("""\nPlease enter SQL query and press double Enter.
-    * Both inline and multiline queries are supported.
-    * Use single Enter to type multiline queries.
-      After pressing Enter, the line is saved.
-      Any edits of this line will be discarded.
-    * Use double Enter to execute your query.
-    * You can execute next query after successful
-      execution of the previous one (only one query at a time).
-    * You may type your own queries or start with
-      the examples to explore the dateset.
-    * To quit, press Enter without input.
-    \nExamples:
-    \033[36mSELECT * FROM tasks_tbl;
-    \033[34mSELECT * FROM projects_tbl;
-    \033[36mSELECT * FROM tasks_tbl WHERE project_id = 400;
-    \033[34mSELECT p.name AS ProjectName, COUNT(*) AS NumberOfTasks
-    FROM tasks_tbl t INNER JOIN projects_tbl p
-    ON t.project_id = p.project_id
-    GROUP BY p.name;\033[0m""")
-    while True:
-        query = next(get_query(cur))
-        cur.execute(query)
-        pretty_print_response(
-            headers=[description[0] for description in cur.description],
-            records=cur.fetchall()
-        )
+    import_data_into_database(cur)
+    execute_user_queries(cur)
