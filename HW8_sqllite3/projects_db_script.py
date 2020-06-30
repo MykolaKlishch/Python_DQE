@@ -32,6 +32,7 @@ class CursorForProjectsDB(sqlite3.Cursor):
     """A subclass of Cursor with additional methods. Three of
     these methods correspond to main stages of script execution.
     """
+
     def create_database_schema(self):
         """Executes SQL script which creates
         tables and defines their structure.
