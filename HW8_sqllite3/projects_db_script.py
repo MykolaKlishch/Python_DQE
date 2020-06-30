@@ -9,8 +9,8 @@ Detailed description:
     the corresponding tables.
  4. Takes user input in a form of executable SQLite query.
     In order to expand functionality, user input requires a full query,
-    not just a part of it. Multiline queries and queries on both tables
-    using JOIN syntax are supported as well.
+    not just a part of it. Multiline queries, queries on both tables
+    using JOIN syntax, subqueries are supported as well.
  5. Prints selected data in a table. Automatically detects column width.
 
 File names, database and table names, column names, column data types,
@@ -25,7 +25,7 @@ import os
 import re
 import sqlite3
 import sys
-from typing import Any, Iterable, NoReturn, Union
+from typing import Any, Iterable
 
 
 class CursorForProjectsDB(sqlite3.Cursor):
@@ -69,10 +69,8 @@ class CursorForProjectsDB(sqlite3.Cursor):
         }
         for filename in insertion_commands.keys():
             if not os.path.exists(filename):
-                self._close_with_message_and_exit(
-                    f"Could not find '{filename}'!")
-            reader = csv.reader(
-                open(filename, encoding='utf-8-sig', newline=""))
+                self._show_message_and_exit(f"Could not find '{filename}'!")
+            reader = csv.reader(open(filename, encoding='utf-8-sig'))
             next(reader)
             self.executemany(insertion_commands.get(filename), reader)
 
@@ -80,17 +78,13 @@ class CursorForProjectsDB(sqlite3.Cursor):
         """Gets query from the user input, executes it and prints
         the response. Does NOT catch errors for invalid queries.
 
-        :raises sqlite3.Warning
-        :raises sqlite3.Error and its subclasses
+        :raises sqlite3.Warning, sqlite3.Error and its subclasses
         """
         print(self._get_guide())
         while True:
             query = next(self._get_query())
             self.execute(query)
-            pretty_print_query_result(
-                headers=[description[0] for description in self.description],
-                records=self.fetchall()
-            )
+            self.pretty_print_query_result()
 
     @staticmethod
     def _get_guide():
@@ -127,10 +121,10 @@ class CursorForProjectsDB(sqlite3.Cursor):
                 break
             new_query += new_query_line
         if not new_query:
-            self._close_with_message_and_exit("No query was detected")
+            self._show_message_and_exit("No query was detected")
         yield new_query
 
-    def _close_with_message_and_exit(self, message=""):
+    def _show_message_and_exit(self, message=""):
         """Prints message, closes the cursor and exits.
 
         :param message: message to print before exit
@@ -139,40 +133,39 @@ class CursorForProjectsDB(sqlite3.Cursor):
         self.connection.close()
         exit()
 
-
-def pretty_print_query_result(
-        headers: Iterable[str],
-        records: Iterable[Iterable[Union[str, int]]]) -> NoReturn:
-    """Prints query result as a table. Automatically detects column width.
-
-    :param headers: headers from recent selection
-    :param records: response fetched from a cursor
-    """
-    def _align_fields(column: Iterable[Any]) -> Iterable[str]:
-        """Transforms all values in the column
-        into str type and unifies their length.
+    def pretty_print_query_result(self):
+        """Prints query result as a table.
+        Automatically detects column width.
         """
-        def _align_cell(field: str) -> str:
-            return f"{field: ^{width}}"
+        def _align_fields(column: Iterable[Any]) -> Iterable[str]:
+            """Transforms all values in the column
+            into str type and unifies their length.
+            """
+            def _align_cell(field: str) -> str:
+                return f"{field: ^{width}}"
 
-        column_str_only = tuple(map(str, column))
-        width = max(map(len, column_str_only))
-        return map(_align_cell, column_str_only)
+            column_str_only = tuple(map(str, column))
+            width = max(map(len, column_str_only))
+            return map(_align_cell, column_str_only)
 
-    def _join_row(row: Iterable[str]) -> str:
-        return " │ ".join(row)
+        def _join_row(row: Iterable[str]) -> str:
+            return " │ ".join(row)
 
-    columns = zip(headers, *records)
-    columns_aligned = map(_align_fields, columns)
-    records_aligned = zip(*columns_aligned)
-    records_strings = map(_join_row, records_aligned)
-    headers_aligned = next(records_strings)
-    header_body_sep = re.sub("│", "┼", re.sub("[^│]", "─", headers_aligned))
-    print(headers_aligned, header_body_sep, *records_strings, sep="\n")
+        headers = [description[0] for description in self.description]
+        records = self.fetchall()
+        columns = zip(headers, *records)
+        columns_aligned = map(_align_fields, columns)
+        records_aligned = zip(*columns_aligned)
+        records_strings = map(_join_row, records_aligned)
+        headers_aligned = next(records_strings)
+        header_body_sep = re.sub(
+            "│", "┼", re.sub("[^│]", "─", headers_aligned))
+        print(headers_aligned, header_body_sep, *records_strings, sep="\n")
+        print(f"\n{len(records)} rows selected")
 
 
 if __name__ == "__main__":
-    conn = sqlite3.connect("ProjectsDB.sqlite3")
+    conn = sqlite3.connect("projects.db")
     cur = conn.cursor(factory=CursorForProjectsDB)
     cur.create_database_schema()
     cur.import_data_into_database()

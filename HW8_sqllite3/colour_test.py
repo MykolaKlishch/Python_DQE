@@ -1,1 +1,0 @@
-print(*[f"\033[{num}m{num}\033[0m" for num in range(637)], sep=' ')
