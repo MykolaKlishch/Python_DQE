@@ -78,19 +78,22 @@ def import_data_into_database(cursor: sqlite3.Cursor) -> NoReturn:
 
 def execute_user_queries(cursor: sqlite3.Cursor) -> NoReturn:
     """Get query from the user, execute it and print the response.
+    Does NOT catch errors for invalid queries
 
-        :param cursor: sqlite3 cur object to execute queries.
+    :param cursor: sqlite3 cur object to execute queries.
+    :raises sqlite3.Warning
+    :raises sqlite3.Error and its subclasses
     """
     print("""\nPlease enter SQL query and press double Enter.
     * Both inline and multiline queries are supported.
-    * Use single Enter to type multiline queries.
-      After pressing Enter, the line is saved.
-      Any edits of this line will be discarded.
     * Use double Enter to execute your query.
     * You can execute next query after successful
       execution of the previous one (only one query at a time).
+    * Use single Enter to type multiline queries.
+      After pressing Enter, the line is saved.
+      Any edits of this line will be discarded.
     * You may type your own queries or start with
-      the examples to explore the dateset.
+      the examples to explore the data set.
     * To quit, press Enter without input.
     \nExamples:
     \033[36mSELECT * FROM tasks_tbl;
@@ -115,7 +118,8 @@ def get_query(cursor: sqlite3.Cursor) -> NoReturn:
 
     :param cursor: sqlite3 cur object.
     """
-    print("\nEnter your query below and press Enter twice to execute it:")
+    print("\n\033[0mEnter your query below "
+          "and press Enter twice to execute it:\033[33m")
     new_query = ""
     while True:
         new_query_line = next(sys.stdin)
