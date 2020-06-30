@@ -49,12 +49,14 @@ class CursorForProjectsDB(sqlite3.Cursor):
             task_id      NUMBER  PRIMARY KEY,
             priority     INTEGER,
             details      TEXT,
-            status       TEXT    CHECK(
-                status IN('new', 'pending', 'done', 'canceled')),
+            status       TEXT,
             deadline     DATE,
             completed    DATE,
             project_id   NUMBER,
-            FOREIGN KEY(project_id) REFERENCES projects_tbl(project_id)
+            CONSTRAINT PR_ID_FK FOREIGN KEY(project_id) 
+                REFERENCES projects_tbl(project_id),
+            CONSTRAINT ST_CHK CHECK(status IN(
+                'new', 'pending', 'done', 'canceled'))
         );""")
 
     def import_data_into_database(self):
