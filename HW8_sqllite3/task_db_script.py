@@ -77,8 +77,8 @@ def import_data_into_database(cursor: sqlite3.Cursor) -> NoReturn:
 
 
 def execute_user_queries(cursor: sqlite3.Cursor) -> NoReturn:
-    """Get query from the user, execute it and print the response.
-    Does NOT catch errors for invalid queries
+    """Gets query from the user input, executea it and printa
+    the response. Does NOT catch errors for invalid queries.
 
     :param cursor: sqlite3 cur object to execute queries.
     :raises sqlite3.Warning
@@ -106,7 +106,7 @@ def execute_user_queries(cursor: sqlite3.Cursor) -> NoReturn:
     while True:
         query = next(get_query(cursor))
         cursor.execute(query)
-        pretty_print_response(
+        pretty_print_query_result(
             headers=[description[0] for description in cursor.description],
             records=cursor.fetchall()
         )
@@ -134,7 +134,7 @@ def get_query(cursor: sqlite3.Cursor) -> NoReturn:
 def close_with_message_and_exit(
         cursor: sqlite3.Cursor,
         message="") -> NoReturn:
-    """Prints message, closes the cur and exits
+    """Prints message, closes the cursor and exits.
 
     :param cursor: sqlite3 cur object to be closed
     :param message: message to print before exit
@@ -144,13 +144,13 @@ def close_with_message_and_exit(
     exit()
 
 
-def pretty_print_response(
+def pretty_print_query_result(
         headers: Iterable[str],
         records: Iterable[Iterable[Union[str, int]]]) -> NoReturn:
-    """Prints response as a table. Automatically detects column width.
+    """Prints query result as a table. Automatically detects column width.
 
     :param headers: headers from recent selection
-    :param records: response fetched from a cur
+    :param records: response fetched from a cursor
     """
     def _align_fields(column: Iterable[Any]) -> Iterable[str]:
         """Transforms all values in the column
