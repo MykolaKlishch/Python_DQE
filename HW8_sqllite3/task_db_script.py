@@ -118,8 +118,8 @@ def get_query(cursor: sqlite3.Cursor) -> NoReturn:
 
     :param cursor: sqlite3 cur object.
     """
-    print("\n\033[0mEnter your query below "
-          "and press Enter twice to execute it:\033[33m")
+    print("\n\033[0mType your query below "
+          "and double press Enter to execute it:\033[33m")
     new_query = ""
     while True:
         new_query_line = next(sys.stdin)
@@ -176,7 +176,7 @@ def pretty_print_query_result(
 
 
 if __name__ == "__main__":
-    conn = sqlite3.connect("task_db.sqlite3")
+    conn = sqlite3.connect("ProjectsDB.sqlite3")
     cur = conn.cursor()
     create_database_schema(cur)
     import_data_into_database(cur)
