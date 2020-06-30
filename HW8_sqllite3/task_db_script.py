@@ -45,21 +45,23 @@ def get_and_execute_user_query(cursor: sqlite3.Cursor) -> NoReturn:
         print("No query was detected", end="")
         cursor.close()
         exit()
+    yield query
     cursor.execute(query)
 
 
-def pretty_print_response(
-        headers: Iterable[str],
+def pretty_print_response(headers: Iterable[str],
         records: Iterable[Iterable[Union[str, int]]]) -> NoReturn:
     """Prints response as a table. Automatically detects column width.
 
     :param headers: headers from recent selection
     :param records: response fetched from a cursor
     """
+
     def _align_fields(column: Iterable[Any]) -> Iterable[str]:
         """Transforms all values in the column
         into str type and unifies their length.
         """
+
         def _align_cell(field: str) -> str:
             return f"{field: ^{width}}"
 
@@ -106,8 +108,7 @@ if __name__ == "__main__":
     # Only ? placeholders are used.
     INSERTION_COMMANDS = {
         "projects_tbl.csv": "INSERT INTO projects_tbl VALUES (?, ?, ?, ?);",
-        "tasks_tbl.csv": "INSERT INTO tasks_tbl VALUES (?, ?, ?, ?, ?, ?, ?);",
-    }
+        "tasks_tbl.csv": "INSERT INTO tasks_tbl VALUES (?, ?, ?, ?, ?, ?, ?);", }
 
     # 1. Create database and tables
     conn = sqlite3.connect("task_db.sqlite3")
@@ -118,9 +119,10 @@ if __name__ == "__main__":
     for filename in INSERTION_COMMANDS.keys():
         if not os.path.exists(filename):
             print(f"Could not find file '{filename}'!")
+            cur.close()
             exit()
         reader = csv.reader(open(filename, encoding='utf-8-sig', newline=""))
-        # 'utf-8-sig' is used to handle '\ufeff' character
+        # 'utf-8-sig' can handle '\ufeff' character
         next(reader)
         cur.executemany(INSERTION_COMMANDS.get(filename), reader)
 
@@ -128,12 +130,14 @@ if __name__ == "__main__":
     print("""\nPlease enter SQL query and press double Enter.
     * Both inline and multiline queries are supported.
     * Use single Enter to type multiline queries.
+      After pressing Enter, the line is saved.
+      Any edits of this line will be discarded.
     * Use double Enter to execute your query.
     * You can execute next query after successful
-      execution of the previous one (one query at a time).
+      execution of the previous one (only one query at a time).
     * You may type your own queries or start with
       the examples to explore the dateset.
-    * To quit, press double Enter without input.
+    * To quit, press Enter without input.
     \nExamples:
     \033[36mSELECT * FROM tasks_tbl;
     \033[34mSELECT * FROM projects_tbl;
@@ -146,5 +150,4 @@ if __name__ == "__main__":
         get_and_execute_user_query(cur)
         pretty_print_response(
             headers=[description[0] for description in cur.description],
-            records=cur.fetchall()
-        )
+            records=cur.fetchall())
