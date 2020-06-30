@@ -37,10 +37,10 @@ def get_and_execute_user_query(cursor: sqlite3.Cursor) -> NoReturn:
     print("\nEnter your query below and press Enter twice to execute it:")
     query = ""
     while True:
-        new_query_part = next(sys.stdin)
-        if new_query_part.isspace():
+        new_query_line = next(sys.stdin)
+        if new_query_line.isspace():
             break
-        query += new_query_part
+        query += new_query_line
     if not query:
         print("No query was detected", end="")
         cursor.close()
@@ -125,25 +125,23 @@ if __name__ == "__main__":
         cur.executemany(INSERTION_COMMANDS.get(filename), reader)
 
     # 3. Get query from the user, execute the query and print the response
-    print(
-        "\nPlease enter SQL query and press double Enter.\n"
-        "Both inline and multiline queries are supported.\n"
-        "Use single Enter to type multiline queries.\n"
-        "Use double Enter to execute your query.\n"
-        "You can execute next query after successful "
-        "execution of the previous one.\n"
-        "You may type your own queries or start with "
-        "the examples to explore the dateset.\n"
-        "To quit, press double Enter without input.\n"
-        "\nExamples:\n"
-        "\033[36mSELECT * FROM tasks_tbl;\n"
-        "\033[34mSELECT * FROM projects_tbl;\n"
-        "\033[36mSELECT * FROM tasks_tbl WHERE project_id = 400;\n"
-        "\033[34mSELECT p.name AS ProjectName, COUNT(*) AS NumberOfTasks\n"
-        "FROM tasks_tbl t INNER JOIN projects_tbl p\n"
-        "ON t.project_id = p.project_id\n"
-        "GROUP BY p.name;\033[0m"
-        )
+    print("""\nPlease enter SQL query and press double Enter.
+    * Both inline and multiline queries are supported.
+    * Use single Enter to type multiline queries.
+    * Use double Enter to execute your query.
+    * You can execute next query after successful
+      execution of the previous one (one query at a time).
+    * You may type your own queries or start with
+      the examples to explore the dateset.
+    * To quit, press double Enter without input.
+    \nExamples:
+    \033[36mSELECT * FROM tasks_tbl;
+    \033[34mSELECT * FROM projects_tbl;
+    \033[36mSELECT * FROM tasks_tbl WHERE project_id = 400;
+    \033[34mSELECT p.name AS ProjectName, COUNT(*) AS NumberOfTasks
+    FROM tasks_tbl t INNER JOIN projects_tbl p
+    ON t.project_id = p.project_id
+    GROUP BY p.name;\033[0m""")
     while True:
         get_and_execute_user_query(cur)
         pretty_print_response(
