@@ -3,15 +3,14 @@ and provides the ability to execute queries on it.
 
 Detailed description:
  1. Creates sqlite3 database.
- 2. Creates two tables in the database: projects_tbl and tasks_tbl.
+ 2. Creates two tables in the database: 'projects_tbl' and 'tasks_tbl'.
     Defines column names, column data types, relations and constraints.
  3. Imports data from .csv files and inserts these data into
-    the respective tables.
+    the corresponding tables.
  4. Takes user input in a form of executable SQLite query.
-    In order to extend functionality, user input requires a full query,
-    not just a part of it. Queries on both tables using JOIN are
-    supported as well. Despite default hardcoded query is specified
-    and is executed if no user input is provided.
+    In order to expand functionality, user input requires a full query,
+    not just a part of it. Multiline queries and queries on both tables
+    using JOIN syntax are supported as well.
  5. Prints selected data in a table. Automatically detects column width.
 
 File names, database and table names, column names, column data types,
@@ -29,119 +28,116 @@ import sys
 from typing import Any, Iterable, NoReturn, Union
 
 
-def create_database_schema(cursor: sqlite3.Cursor) -> NoReturn:
-    """Executes SQL script which creates tables
-    and defines their structure.
-
-    :param cursor: sqlite3 cur object to execute statements.
+class CursorForProjectsDB(sqlite3.Cursor):
+    """A subclass of Cursor with additional methods. Three of
+    these methods correspond to main stages of script execution.
     """
-    cursor.executescript("""
-    DROP TABLE IF EXISTS projects_tbl;
-    CREATE TABLE projects_tbl(
-        project_id   NUMBER  PRIMARY KEY,
-        name         TEXT,
-        description  TEXT,
-        deadline     DATE
-    );
-    DROP TABLE IF EXISTS tasks_tbl;
-    CREATE TABLE tasks_tbl( 
-        task_id      NUMBER  PRIMARY KEY,
-        priority     INTEGER,
-        details      TEXT,
-        status       TEXT    CHECK(
-            status IN('new', 'pending', 'done', 'canceled')),
-        deadline     DATE,
-        completed    DATE,
-        project_id   NUMBER,
-        FOREIGN KEY(project_id) REFERENCES project_tbl(project_id)
-    );""")
+    def create_database_schema(self):
+        """Executes SQL script which creates
+        tables and defines their structure.
+        """
+        self.executescript("""
+        DROP TABLE IF EXISTS projects_tbl;
+        CREATE TABLE projects_tbl(
+            project_id   NUMBER  PRIMARY KEY,
+            name         TEXT,
+            description  TEXT,
+            deadline     DATE
+        );
+        DROP TABLE IF EXISTS tasks_tbl;
+        CREATE TABLE tasks_tbl( 
+            task_id      NUMBER  PRIMARY KEY,
+            priority     INTEGER,
+            details      TEXT,
+            status       TEXT    CHECK(
+                status IN('new', 'pending', 'done', 'canceled')),
+            deadline     DATE,
+            completed    DATE,
+            project_id   NUMBER,
+            FOREIGN KEY(project_id) REFERENCES projects_tbl(project_id)
+        );""")
 
+    def import_data_into_database(self):
+        """Reads data from csv files and inserts them into tables.
+        The method can handle '\ufeff' character which may occur in
+        csv files The method uses 'utf-8-sig' encoding which ignores
+        '\ufeff' character ('utf-8' does not).
+        """
+        insertion_commands = {
+            "projects_tbl.csv": "INSERT INTO projects_tbl VALUES (?,?,?,?);",
+            "tasks_tbl.csv": "INSERT INTO tasks_tbl VALUES (?,?,?,?,?,?,?);"
+        }
+        for filename in insertion_commands.keys():
+            if not os.path.exists(filename):
+                self._close_with_message_and_exit(
+                    f"Could not find '{filename}'!")
+            reader = csv.reader(
+                open(filename, encoding='utf-8-sig', newline=""))
+            next(reader)
+            self.executemany(insertion_commands.get(filename), reader)
 
-def import_data_into_database(cursor: sqlite3.Cursor) -> NoReturn:
-    """Reads data from csv files and inserts them into tables.
-    Can handle '\ufeff' character in csv files because it uses
-    'utf-8-sig' encoding which ignores '\ufeff' ('utf-8' does not).
+    def execute_user_queries(self):
+        """Gets query from the user input, executes it and prints
+        the response. Does NOT catch errors for invalid queries.
 
-    :param cursor: sqlite3 cur object to execute statements.
-    """
-    insertion_commands = {
-        "projects_tbl.csv": "INSERT INTO projects_tbl VALUES (?, ?, ?, ?);",
-        "tasks_tbl.csv": "INSERT INTO tasks_tbl VALUES (?, ?, ?, ?, ?, ?, ?);"
-    }
-    for filename in insertion_commands.keys():
-        if not os.path.exists(filename):
-            close_with_message_and_exit(cursor, f"Couldn't find '{filename}'!")
-        reader = csv.reader(open(filename, encoding='utf-8-sig', newline=""))
-        next(reader)
-        cursor.executemany(insertion_commands.get(filename), reader)
+        :raises sqlite3.Warning
+        :raises sqlite3.Error and its subclasses
+        """
+        print(self._get_guide())
+        while True:
+            query = next(self._get_query())
+            self.execute(query)
+            pretty_print_query_result(
+                headers=[description[0] for description in self.description],
+                records=self.fetchall()
+            )
 
+    @staticmethod
+    def _get_guide():
+        return """\nPlease enter SQL query and press double Enter.
+        * Both inline and multiline queries are supported.
+        * Use double Enter to execute your query.
+        * You can execute next query after successful
+          execution of the previous one (only one query at a time).
+        * Use single Enter to type multiline queries.
+          After pressing Enter, the line is saved.
+          Any edits of this line will be discarded.
+        * You may type your own queries or start with
+          the examples to explore the data set.
+        * To quit, press Enter without input.
+        \nExamples:
+        \033[36mSELECT * FROM tasks_tbl;
+        \033[34mSELECT * FROM projects_tbl;
+        \033[36mSELECT * FROM tasks_tbl WHERE project_id = 400;
+        \033[34mSELECT p.name AS ProjectName, COUNT(*) AS NumberOfTasks
+        FROM tasks_tbl t INNER JOIN projects_tbl p
+        ON t.project_id = p.project_id
+        GROUP BY p.name;\033[0m"""
 
-def execute_user_queries(cursor: sqlite3.Cursor) -> NoReturn:
-    """Gets query from the user input, executea it and printa
-    the response. Does NOT catch errors for invalid queries.
+    def _get_query(self):
+        """Generator which gets queries from stdin.
+        Queries are NOT validated at this stage.
+        """
+        print("\n\033[0mType your query below "
+              "and double press Enter to execute it:\033[33m")
+        new_query = ""
+        while True:
+            new_query_line = next(sys.stdin)
+            if new_query_line.isspace():
+                break
+            new_query += new_query_line
+        if not new_query:
+            self._close_with_message_and_exit("No query was detected")
+        yield new_query
 
-    :param cursor: sqlite3 cur object to execute queries.
-    :raises sqlite3.Warning
-    :raises sqlite3.Error and its subclasses
-    """
-    print("""\nPlease enter SQL query and press double Enter.
-    * Both inline and multiline queries are supported.
-    * Use double Enter to execute your query.
-    * You can execute next query after successful
-      execution of the previous one (only one query at a time).
-    * Use single Enter to type multiline queries.
-      After pressing Enter, the line is saved.
-      Any edits of this line will be discarded.
-    * You may type your own queries or start with
-      the examples to explore the data set.
-    * To quit, press Enter without input.
-    \nExamples:
-    \033[36mSELECT * FROM tasks_tbl;
-    \033[34mSELECT * FROM projects_tbl;
-    \033[36mSELECT * FROM tasks_tbl WHERE project_id = 400;
-    \033[34mSELECT p.name AS ProjectName, COUNT(*) AS NumberOfTasks
-    FROM tasks_tbl t INNER JOIN projects_tbl p
-    ON t.project_id = p.project_id
-    GROUP BY p.name;\033[0m""")
-    while True:
-        query = next(get_query(cursor))
-        cursor.execute(query)
-        pretty_print_query_result(
-            headers=[description[0] for description in cursor.description],
-            records=cursor.fetchall()
-        )
+    def _close_with_message_and_exit(self, message=""):
+        """Prints message, closes the cursor and exits.
 
-
-def get_query(cursor: sqlite3.Cursor) -> NoReturn:
-    """Generator which gets queries from stdin.
-    Queries are NOT validated at this stage.
-
-    :param cursor: sqlite3 cur object.
-    """
-    print("\n\033[0mType your query below "
-          "and double press Enter to execute it:\033[33m")
-    new_query = ""
-    while True:
-        new_query_line = next(sys.stdin)
-        if new_query_line.isspace():
-            break
-        new_query += new_query_line
-    if not new_query:
-        close_with_message_and_exit(cursor, "No query was detected")
-    yield new_query
-
-
-def close_with_message_and_exit(
-        cursor: sqlite3.Cursor,
-        message="") -> NoReturn:
-    """Prints message, closes the cursor and exits.
-
-    :param cursor: sqlite3 cur object to be closed
-    :param message: message to print before exit
-    """
-    print(message, end="")
-    cursor.close()
-    exit()
+        :param message: message to print before exit
+        """
+        print(message, end="")
+        self.connection.close()
+        exit()
 
 
 def pretty_print_query_result(
@@ -177,7 +173,7 @@ def pretty_print_query_result(
 
 if __name__ == "__main__":
     conn = sqlite3.connect("ProjectsDB.sqlite3")
-    cur = conn.cursor()
-    create_database_schema(cur)
-    import_data_into_database(cur)
-    execute_user_queries(cur)
+    cur = conn.cursor(factory=CursorForProjectsDB)
+    cur.create_database_schema()
+    cur.import_data_into_database()
+    cur.execute_user_queries()
