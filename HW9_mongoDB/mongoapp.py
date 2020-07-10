@@ -6,62 +6,60 @@ of projects that include cancelled tasks.
 import csv
 import os
 import pymongo
-from typing import NoReturn, Union, Dict
+from typing import NoReturn, Union
 
 
-def get_credentials() -> Dict[str, str]:
-    """Set the mode of interaction with MongoDB.
-    For cloud connection, get credentials and
-    database name from the user.
+def connect_to_mongo() -> pymongo.MongoClient:
+    """Set the mode of interaction with MongoDB. For cloud connection,
+    get credentials and database name from the user. Establish the connection.
 
-    :return: dict with credentials and database name.
+    :return: pymongo.MongoClient instance (cluster)
     """
     print("How would you like to connect to MongoDB?")
     while True:
         mode = input("Type 'l' to connect on local device.\n"
                      "Type 'c' to connect in cloud.\n")
         if mode == "c":
-            return {"username": input("username: "),
-                    "password": input("password: ")}
+            return _connect_remotely(username=input("username: "),
+                                     password=input("password: "))
         if mode == "l":
-            return {}
+            return _connect_locally()
 
 
-def connect_to_mongo(
-        username: str = "",
-        password: str = "",
-        database: str = "projects_db",
+def _connect_locally(
         host: str = "localhost",
-        port: int = 27017) -> pymongo.MongoClient:
-    """Connects to MongoDB:
-        * in cloud (by MongoDB URI which must contain
-                    username, password and database name);
-        * on local device (by host and port);
-    If username, password and database are provided, cloud connection
-    is used. Default host and port parameters are ignored. Otherwise,
-    host and port are used. Other parameters are ignored.
+        port: int = 270170) -> pymongo.MongoClient:
+    """Connects to MongoDB on local device.
 
-    :param host: optional; for local connection only;
-    :param port: optional; for local connection only;
-    :param username: for cloud connection only;
-    :param password: for cloud connection only;
-    :param database: for cloud connection only;
+    :param host: optional; host name; default: 'localhost';
+    :param port: optional; port number; default: 27017;
+    :return: pymongo.MongoClient instance (cluster);
+    """
+    return pymongo.MongoClient(host, port)
+
+
+def _connect_remotely(
+        username: str,
+        password: str,
+        database: str = "projects_db---") -> pymongo.MongoClient:
+    """Connects to MongoDB in cloud by MongoDB URI which must contain
+    username, password and database name (default: 'projects_db').
+
     :return: pymongo.MongoClient instance (cluster);
     :raises pymongo.errors.OperationFailure if authentication fails.
+    :raises pymongo.errors.InvalidURI for missing password and/or username;
+    :raises pymongo.errors.ConfigurationError for missing password
+    or if cluster0 does not exist
     """
-    if username and password:
-        mongo_uri = (f"mongodb+srv://{username}:{password}"
-                     f"@cluster0.zkdur.mongodb.net/{database}"
-                     f"?retryWrites=true&w=majority")
-        cluster = pymongo.MongoClient(mongo_uri)
-    else:
-        cluster = pymongo.MongoClient(host, port)
-    return cluster
+    mongo_uri = (f"mongodb+srv://{username}:{password}"
+                 f"@cluster0.zkdur.mongodb.net/{database}"
+                 f"?retryWrites=true&w=majority")
+    return pymongo.MongoClient(mongo_uri)
 
 
 def exit_if_file_does_not_exist(filename: Union[str, bytes]) -> NoReturn:
     """Checks file existence. If the file
-    does not exist, prints message and exits.
+    does not exist, prints warning message and exits.
 
     :param filename: absolute or relative filename to be checked;
     :return: None
@@ -76,7 +74,7 @@ def import_from_csv_into_collection(
         filename: Union[str, bytes]) -> NoReturn:
     """Imports data into specified collection from specified CSV file.
     File existence is checked. The collection is cleared before new
-    data are imported into it. The method uses 'utf-8-sig' encoding
+    data are imported into it. The function uses 'utf-8-sig' encoding
     which can deal with '\ufeff' character if it appears in CSV file.
 
     :param collection: pymongo collection to import data into;
@@ -84,7 +82,7 @@ def import_from_csv_into_collection(
     :return: None
     """
     exit_if_file_does_not_exist(filename)
-    file_handle = open(filename, encoding='utf-8-sig')
+    file_handle = open(file=filename, mode="rt", encoding='utf-8-sig')
     reader = csv.DictReader(file_handle)
     collection.delete_many({})
     collection.insert_many(reader)
@@ -116,7 +114,7 @@ def execute_query(
 
 
 def make_connection_import_data_and_execute_query() -> NoReturn:
-    cluster = connect_to_mongo(**get_credentials())
+    cluster = connect_to_mongo()
     database = cluster["projects_db"]
     import_from_csv_into_collection(
         collection=database["projects"], filename="projects_tbl.csv")
