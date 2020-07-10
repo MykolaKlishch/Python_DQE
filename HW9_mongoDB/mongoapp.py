@@ -33,7 +33,7 @@ def _connect_locally(
 
     :param host: optional; host name; default: 'localhost';
     :param port: optional; port number; default: 27017;
-    :return: pymongo.MongoClient instance (cluster);
+    :return: pymongo.MongoClient instance (cluster)
     """
     return pymongo.MongoClient(host, port)
 
