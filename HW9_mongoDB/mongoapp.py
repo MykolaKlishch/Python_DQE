@@ -1,24 +1,111 @@
+"""Imports data from csv files into MongoDB database. Executes a query
+to select the names of projects that include cancelled tasks.
+"""
+
+import csv
+import os
 import pymongo
-from pymongo import MongoClient
+from typing import NoReturn, Union
 
-cluster = MongoClient(
-    "mongodb+srv://Mykola:1111@cluster0.zkdur.mongodb.net/projects_db?retryWrites=true&w=majority"
-)
-db = cluster["projects_db"]
-collection = db["projects"]
 
-# post = {"_id": 0, "content": None, "data": "test_data"}
-# collection.insert_one(post)
+def connect_to_mongo(
+        host: str = "localhost",
+        port: int = 27017,
+        username: str = "",
+        password: str = "",
+        database: str = "") -> pymongo.MongoClient:
+    """Connects to MongoDB:
+        * in cloud (by MongoDB URI which must contain
+                    username, password and database name);
+        * on local device (by host and port);
+    If username, password and database are provided, cloud connection
+    is used. Default host and port parameters are ignored. Otherwise,
+    host and port are used. Other parameters are ignored.
 
-# post_wo_custom_id = {"content": "something", "data": "some_data"}
-# collection.insert_one(post_wo_custom_id)
+    :param host: optional; for local connection only;
+    :param port: optional; for local connection only;
+    :param username: for cloud connection only;
+    :param password: for cloud connection only;
+    :param database: for cloud connection only;
+    :return: pymongo.MongoClient instance (cluster).
+    """
+    if username and password and database:
+        mongo_uri = (
+            f"mongodb+srv://{username}:{password}"
+            f"@cluster0.zkdur.mongodb.net/{database}"
+            f"?retryWrites=true&w=majority"
+        )
+        cluster = pymongo.MongoClient(mongo_uri)
+    else:
+        cluster = pymongo.MongoClient(host, port)
+    return cluster
 
-cur = collection.delete_many(
-    {'content': 'modified'}
-)
 
-post_count = collection.count_documents({'content': 'modified'})
-print(post_count)
+def exit_if_file_does_not_exist(filename: Union[str, bytes]) -> NoReturn:
+    """Checks file existence. If the file
+    does not exist, prints message and exits.
 
-results = collection.find({})
-print(*results, sep="\n")
+    :param filename: absolute or relative filename to be checked;
+    :return: None
+    """
+    if not os.path.exists(filename):
+        print(f"Data import failed! Could not find '{filename}'!")
+        exit()
+
+
+def import_from_csv_into_collection(
+        collection: pymongo.collection.Collection,
+        filename: Union[str, bytes]) -> NoReturn:
+    """Imports data into specified collection from specified CSV file.
+    File existence is checked. The collection is cleared before new
+    data are imported into it. The method uses 'utf-8-sig' encoding
+    which can deal with '\ufeff' character if it appears in CSV file.
+
+    :param collection: pymongo collection to import data into;
+    :param filename: CSV file name to export data from;
+    :return: None
+    """
+    exit_if_file_does_not_exist(filename)
+    file_handle = open(filename, encoding='utf-8-sig')
+    reader = csv.DictReader(file_handle)
+    collection.delete_many({})
+    collection.insert_many(reader)
+
+
+def execute_query(
+        database: pymongo.mongo_client.database.Database) -> NoReturn:
+    """Selects the names of projects that include cancelled tasks.
+    Executes the query and prints the result. The query is equivalent
+    to the following SQL query:
+
+    SELECT _id FROM database.projects
+    WHERE _id IN (SELECT project_id from database.tasks
+                  WHERE status = "canceled");
+
+    :param database: Database instance to query;
+    :return: None
+    """
+    query_result = [
+        project["name"] for project in database["projects"].find(
+            {"_id": {"$in": [
+                task["project_id"] for task in database["tasks"].find(
+                    {"status": "canceled"}
+                )
+            ]}}
+        )
+    ]
+    print("Projects with cancelled tasks:", *query_result, sep="\n")
+
+
+def make_connection_import_data_and_execute_query() -> NoReturn:
+    cluster = connect_to_mongo()
+    database = cluster["projects_db"]
+    import_from_csv_into_collection(
+        collection=database["projects"], filename="projects_tbl.csv")
+    import_from_csv_into_collection(
+        collection=database["tasks"], filename="tasks_tbl.csv")
+    execute_query(database)
+
+
+if __name__ == "__main__":
+    make_connection_import_data_and_execute_query()
