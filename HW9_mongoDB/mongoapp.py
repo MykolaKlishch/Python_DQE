@@ -1,19 +1,38 @@
-"""Imports data from csv files into MongoDB database. Executes a query
-to select the names of projects that include cancelled tasks.
+"""Connects with MongoDB on local device or in cloud. Imports data
+from csv files into MongoDB. Executes a query to select the names
+of projects that include cancelled tasks.
 """
 
 import csv
 import os
 import pymongo
-from typing import NoReturn, Union
+from typing import NoReturn, Union, Dict
+
+
+def get_credentials() -> Dict[str, str]:
+    """Set the mode of interaction with MongoDB.
+    For cloud connection, get credentials and
+    database name from the user.
+
+    :return: dict with credentials and database name.
+    """
+    print("How would you like to connect to MongoDB?")
+    while True:
+        mode = input("Type 'l' to connect on local device.\n"
+                     "Type 'c' to connect in cloud.\n")
+        if mode == "c":
+            return {"username": input("username: "),
+                    "password": input("password: ")}
+        if mode == "l":
+            return {}
 
 
 def connect_to_mongo(
-        host: str = "localhost",
-        port: int = 27017,
         username: str = "",
         password: str = "",
-        database: str = "") -> pymongo.MongoClient:
+        database: str = "projects_db",
+        host: str = "localhost",
+        port: int = 27017) -> pymongo.MongoClient:
     """Connects to MongoDB:
         * in cloud (by MongoDB URI which must contain
                     username, password and database name);
@@ -27,14 +46,13 @@ def connect_to_mongo(
     :param username: for cloud connection only;
     :param password: for cloud connection only;
     :param database: for cloud connection only;
-    :return: pymongo.MongoClient instance (cluster).
+    :return: pymongo.MongoClient instance (cluster);
+    :raises pymongo.errors.OperationFailure if authentication fails.
     """
-    if username and password and database:
-        mongo_uri = (
-            f"mongodb+srv://{username}:{password}"
-            f"@cluster0.zkdur.mongodb.net/{database}"
-            f"?retryWrites=true&w=majority"
-        )
+    if username and password:
+        mongo_uri = (f"mongodb+srv://{username}:{password}"
+                     f"@cluster0.zkdur.mongodb.net/{database}"
+                     f"?retryWrites=true&w=majority")
         cluster = pymongo.MongoClient(mongo_uri)
     else:
         cluster = pymongo.MongoClient(host, port)
@@ -94,11 +112,11 @@ def execute_query(
             ]}}
         )
     ]
-    print("Projects with cancelled tasks:", *query_result, sep="\n")
+    print("\nProjects with cancelled tasks:\033[32m", *query_result, sep="\n")
 
 
 def make_connection_import_data_and_execute_query() -> NoReturn:
-    cluster = connect_to_mongo()
+    cluster = connect_to_mongo(**get_credentials())
     database = cluster["projects_db"]
     import_from_csv_into_collection(
         collection=database["projects"], filename="projects_tbl.csv")
