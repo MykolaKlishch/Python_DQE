@@ -28,7 +28,7 @@ def connect_to_mongo() -> pymongo.MongoClient:
 
 def _connect_locally(
         host: str = "localhost",
-        port: int = 270170) -> pymongo.MongoClient:
+        port: int = 27017) -> pymongo.MongoClient:
     """Connects to MongoDB on local device.
 
     :param host: optional; host name; default: 'localhost';
